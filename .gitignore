@@ -1,6 +1,10 @@
 CMakeCache.txt
 CMakeFiles
 CMakeScripts
+bin/CMakeCache.txt
+bin/CMakeFiles
+bin/CMakeScripts
+bin/Makefile
 Testing
 Makefile
 cmake_install.cmake
