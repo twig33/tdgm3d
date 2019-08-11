@@ -4,7 +4,7 @@ cmake_minimum_required(VERSION 3.7)
 
 # Project's name
 
-project(pong)
+project(tdgm3d)
 
 # Set the output folder where your program will be created
 
@@ -21,6 +21,6 @@ include_directories("${PROJECT_SOURCE_DIR}")
 
 
 
-add_executable(pong ${PROJECT_SOURCE_DIR}/main.cpp ${PROJECT_SOURCE_DIR}/graphics.cpp ${PROJECT_SOURCE_DIR}/shader.cpp ${PROJECT_SOURCE_DIR}/input.cpp ${PROJECT_SOURCE_DIR}/stb_image_implementation)
+add_executable(tdgm3d ${PROJECT_SOURCE_DIR}/main.cpp ${PROJECT_SOURCE_DIR}/graphics.cpp ${PROJECT_SOURCE_DIR}/shader.cpp ${PROJECT_SOURCE_DIR}/input.cpp ${PROJECT_SOURCE_DIR}/stb_image_implementation)
 
-target_link_libraries(pong glfw GL GLEW)
+target_link_libraries(tdgm3d glfw GL GLEW)
