@@ -24,9 +24,13 @@ struct Vector3{
 enum { //GRAPHICS_SHADER_SIZE is always last
 	GRAPHICS_SHADER_COLOR_SOLID, GRAPHICS_SHADER_COLOR_VERTEX, GRAPHICS_SHADER_SIZE
 };
+enum {
+	GRAPHICS_OBJECT_STATE_ALIVE, GRAPHICS_OBJECT_STATE_DEAD, GRAPHICS_OBJECT_STATE_EXPLODING, GRAPHICS_OBJECT_STATE_SIZE
+};
 struct RenderObject {
 	friend class GraphicsManager;
 	private:
+		unsigned int state = GRAPHICS_OBJECT_STATE_ALIVE;
 		Color color;
 		RenderObject* next = NULL;
 		Vector3 position;
@@ -48,11 +52,19 @@ class GraphicsManager {
 										  	Color color = {0.0, 0.0, 0.0, 1.0});
 		bool quit = 0;
 		GLFWwindow* window;
+	private:
 		RenderObject* tail[GRAPHICS_SHADER_SIZE] = {NULL};
 		RenderObject* head[GRAPHICS_SHADER_SIZE] = {NULL};
-	private:
 		RenderObject* new_empty_object_push_back(int shader_type);
 		unsigned int shader_program[GRAPHICS_SHADER_SIZE];
+		typedef void (GraphicsManager::*void_func)(RenderObject*);
+		void solid_color_shader_actions(RenderObject* object);
+		void vertex_color_shader_actions(RenderObject* object);
+		void_func shader_specific_actions[GRAPHICS_SHADER_SIZE] = {
+			shader_specific_actions[GRAPHICS_SHADER_COLOR_SOLID] = 	&GraphicsManager::solid_color_shader_actions,
+			shader_specific_actions[GRAPHICS_SHADER_COLOR_VERTEX] = &GraphicsManager::vertex_color_shader_actions
+		};
+		void do_shader_specific_actions(int shader_type, RenderObject* object);
 		int shader_color_solid_ourColor; //color uniform location in solid color shader (so we can change the color)
 };
 

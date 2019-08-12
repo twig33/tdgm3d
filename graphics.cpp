@@ -25,7 +25,7 @@ RenderObject* GraphicsManager::new_triangles_object(int shader_type,
 		std::cout << "Warning: indices size not a multiply of 3\n";	
 	}
 	RenderObject* object = this->new_empty_object_push_back(shader_type);
-	object->vertices_count = size_indices;
+	object->vertices_count = size_indices / sizeof(unsigned int);
 	if (shader_type == GRAPHICS_SHADER_COLOR_SOLID){
 		object->color = color; //this is for the solid color shader only because
 	}						   //in per vertex color shader colors are in the VBO
@@ -88,31 +88,33 @@ void GraphicsManager::finish(){
 	glfwTerminate();	
 }
 
+void GraphicsManager::solid_color_shader_actions(RenderObject* object){
+	glUniform4f(shader_color_solid_ourColor, object->color.r, object->color.g, object->color.b, object->color.a); //set the color
+}
+void GraphicsManager::vertex_color_shader_actions(RenderObject* object){
+	//there isnt anything to do yet	
+}
+void GraphicsManager::do_shader_specific_actions(int shader_type, RenderObject* object){
+	(this->*shader_specific_actions[shader_type])(object);
+}
 void GraphicsManager::update(){
 	if (glfwWindowShouldClose(window)){
 		this->finish();
 		return;	
 	}
 	//clear the screen
-	glClear(GL_COLOR_BUFFER_BIT);
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//current object which we are drawing
 	RenderObject* curr = NULL;
-	//TODO merge the shaders draw (if i == GRAPHICS_SHADER_COLOR_SOLID could be expensive)
-	//solid color shader objects draw
-	glUseProgram(shader_program[GRAPHICS_SHADER_COLOR_SOLID]);
-	curr = this->tail[GRAPHICS_SHADER_COLOR_SOLID];
-	while(curr != NULL){
-		glBindVertexArray(curr->VAO);
-		glUniform4f(shader_color_solid_ourColor, curr->color.r, curr->color.g, curr->color.b, curr->color.a);
-		glDrawElements(GL_TRIANGLES, curr->vertices_count, GL_UNSIGNED_INT, 0);
-		curr = curr->next;
-	}
-	//per vertex color shader objects draw
-	glUseProgram(shader_program[GRAPHICS_SHADER_COLOR_VERTEX]);
-	curr = this->tail[GRAPHICS_SHADER_COLOR_VERTEX];
-	while(curr != NULL){
-		glBindVertexArray(curr->VAO);
-		glDrawElements(GL_TRIANGLES, curr->vertices_count, GL_UNSIGNED_INT, 0);
-		curr = curr->next;
+	for (int i = 0; i < GRAPHICS_SHADER_SIZE; ++i){
+		glUseProgram(shader_program[i]);
+		curr = this->tail[i];
+		while(curr != NULL){
+			glBindVertexArray(curr->VAO);
+			do_shader_specific_actions(i, curr);
+			glDrawElements(GL_TRIANGLES, curr->vertices_count, GL_UNSIGNED_INT, 0);
+			curr = curr->next;
+		}
 	}
 	glfwSwapBuffers(window);
 	glfwPollEvents();

@@ -32,10 +32,11 @@ unsigned int indices2[] = {
 	0, 1, 2
 };
 float background_vertices[] = {
-   -1.0,-1.0,-1.0,
-    1.0, 1.0,-1.0,
-   -1.0, 1.0,-1.0,
-	1.0,-1.0,-1.0,
+	//coords			//color
+   -1.0, 1.0, 1.0,		0.0, 0.0, 1.0,
+    1.0, 1.0, 1.0,		0.0, 0.0, 1.0,
+   -1.0, 0.4, 1.0,		1.0, 0.0, 0.0,
+	1.0, 0.4, 1.0,		1.0, 0.0, 0.0
 };
 unsigned int background_indices[] = {
 	0, 1, 2,
@@ -51,10 +52,9 @@ int main(int argc, char* argv[])
 															sizeof(testvertices2), testvertices2,
 															sizeof(indices2), indices2,
 															{0.0, 0.0, 1.0, 0.1});
-	RenderObject* background = Graphics.new_triangles_object(GRAPHICS_SHADER_COLOR_SOLID,
-	/*background is for testing alpha in colors*/			sizeof(background_vertices), background_vertices,
-	/*alpha in colors doesnt work yet*/						sizeof(background_indices), background_indices,
-															{1.0, 1.0, 1.0, 1.0});
+	RenderObject* background = Graphics.new_triangles_object(GRAPHICS_SHADER_COLOR_VERTEX,
+	/*i made background to test depth*/						sizeof(background_vertices), background_vertices,
+	/*depth doesnt seem to work yet*/						sizeof(background_indices), background_indices);
 	Input.init();
 	glfwSetKeyCallback(Graphics.window, Input.key_callback);
 	int frames = 0;
