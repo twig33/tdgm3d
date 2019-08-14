@@ -9,6 +9,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include <cmath>
 #include <stb_image.h>
+#include <shader.h>
 
 struct Color {
 	float r = 0;
@@ -27,14 +28,23 @@ enum { //GRAPHICS_SHADER_SIZE is always last
 enum {
 	GRAPHICS_OBJECT_STATE_ALIVE, GRAPHICS_OBJECT_STATE_DEAD, GRAPHICS_OBJECT_STATE_EXPLODING, GRAPHICS_OBJECT_STATE_SIZE
 };
-struct RenderObject {
+class RenderObject {
 	friend class GraphicsManager;
+	public:
+		void set_position(float x, float y, float z);
+		void set_local_rotation(float x, float y, float z);
+		void set_global_rotation(float x, float y, float z);
+		void set_scale(float x, float y, float z);
 	private:
 		unsigned int state = GRAPHICS_OBJECT_STATE_ALIVE;
 		Color color;
 		RenderObject* next = NULL;
+		glm::mat4 transform = glm::mat4(1.0f);
 		Vector3 position;
-		Vector3 rotation;
+		Vector3 local_rotation;
+		Vector3 global_rotation;
+		Vector3 scale;
+		void update_transform_matrix();
 		unsigned int VBO;
 		unsigned int EBO;
 		unsigned int VAO;
@@ -43,7 +53,7 @@ struct RenderObject {
 
 class GraphicsManager {
 	public:
-		void init();
+		GraphicsManager();
 		void finish();
 		void update();
 		RenderObject* new_triangles_object(	int shader_type, 
@@ -53,20 +63,22 @@ class GraphicsManager {
 		bool quit = 0;
 		GLFWwindow* window;
 	private:
-		RenderObject* tail[GRAPHICS_SHADER_SIZE] = {NULL};
-		RenderObject* head[GRAPHICS_SHADER_SIZE] = {NULL};
+		glm::mat4 proj;
+		glm::mat4 camera;
+		glm::mat4 transform;
+		RenderObject* tail[GRAPHICS_SHADER_SIZE] = {NULL}; //linked list
+		RenderObject* head[GRAPHICS_SHADER_SIZE] = {NULL}; //linked list
 		RenderObject* new_empty_object_push_back(int shader_type);
-		unsigned int shader_program[GRAPHICS_SHADER_SIZE];
-		typedef void (GraphicsManager::*void_func)(RenderObject*);
-		void solid_color_shader_actions(RenderObject* object);
+		Shader* shader[GRAPHICS_SHADER_SIZE]; //shaders storage
+		typedef void (GraphicsManager::*void_func)(RenderObject*); //shader specific action function pointer typedef
+		void solid_color_shader_actions(RenderObject* object); 
 		void vertex_color_shader_actions(RenderObject* object);
-		void_func shader_specific_actions[GRAPHICS_SHADER_SIZE] = {
+		void_func shader_specific_actions[GRAPHICS_SHADER_SIZE] = { //shader specific action function pointers storage
 			shader_specific_actions[GRAPHICS_SHADER_COLOR_SOLID] = 	&GraphicsManager::solid_color_shader_actions,
 			shader_specific_actions[GRAPHICS_SHADER_COLOR_VERTEX] = &GraphicsManager::vertex_color_shader_actions
 		};
-		void do_shader_specific_actions(int shader_type, RenderObject* object);
-		int shader_color_solid_ourColor; //color uniform location in solid color shader (so we can change the color)
+		void do_shader_specific_actions(int shader_type, RenderObject* object); //wrapper because using function pointers is ugly
 };
 
-extern GraphicsManager Graphics;
+extern GraphicsManager* Graphics;
 #endif

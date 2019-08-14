@@ -44,24 +44,24 @@ unsigned int background_indices[] = {
 };
 int main(int argc, char* argv[])
 {
-	Graphics.init();
-	RenderObject* triangle = Graphics.new_triangles_object(	GRAPHICS_SHADER_COLOR_VERTEX, 
+	Graphics = new GraphicsManager();
+	RenderObject* triangle = Graphics->new_triangles_object(	GRAPHICS_SHADER_COLOR_VERTEX, 
 															sizeof(testvertices), testvertices, 
 							  								sizeof(indices), indices);
-	RenderObject* triangle2 = Graphics.new_triangles_object(GRAPHICS_SHADER_COLOR_SOLID,
+	RenderObject* triangle2 = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_SOLID,
 															sizeof(testvertices2), testvertices2,
 															sizeof(indices2), indices2,
 															{0.0, 0.0, 1.0, 0.1});
-	RenderObject* background = Graphics.new_triangles_object(GRAPHICS_SHADER_COLOR_VERTEX,
+	RenderObject* background = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_VERTEX,
 	/*i made background to test depth*/						sizeof(background_vertices), background_vertices,
 	/*depth doesnt seem to work yet*/						sizeof(background_indices), background_indices);
 	Input.init();
-	glfwSetKeyCallback(Graphics.window, Input.key_callback);
+	glfwSetKeyCallback(Graphics->window, Input.key_callback);
 	int frames = 0;
-	while(!Graphics.quit){
+	while(!Graphics->quit){
 		double time_before = glfwGetTime();
 		//main
-		Graphics.update();
+		Graphics->update();
 		//main
 		double time_after = glfwGetTime();
 		double difference = time_before - time_after;

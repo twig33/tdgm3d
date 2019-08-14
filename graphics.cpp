@@ -1,8 +1,7 @@
 #include <graphics.h>
 #include <iostream>
-#include <shader.h> //load_shaders();
 
-GraphicsManager Graphics;
+GraphicsManager* Graphics;
 
 RenderObject* GraphicsManager::new_empty_object_push_back(int shader_type){
 	RenderObject* object = new RenderObject;
@@ -59,7 +58,7 @@ RenderObject* GraphicsManager::new_triangles_object(int shader_type,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 	return object;
 }
-void GraphicsManager::init(){
+GraphicsManager::GraphicsManager(){
 	//glfw init
 	glfwInit();
 	//window
@@ -75,10 +74,19 @@ void GraphicsManager::init(){
 	//glew init 
 	glewExperimental = GL_TRUE; //ya uzhe забылdlya chevo eto
 	glewInit();
-	//create shader programs
-	shader_program[GRAPHICS_SHADER_COLOR_SOLID] = load_shaders("shader_color_solid.vs", "shader_color_solid.frag");
-	shader_color_solid_ourColor = glGetUniformLocation(shader_program[GRAPHICS_SHADER_COLOR_SOLID], "ourColor");
-	shader_program[GRAPHICS_SHADER_COLOR_VERTEX] = load_shaders("shader_color_vertex.vs", "shader_color_vertex.frag");
+	//create shaders
+	glm::mat4 identity = glm::mat4(1.0f);
+	glm::vec3 offset = glm::vec3(0.0f,0.0f,-2.5f);
+	transform = glm::mat4(1.0f);
+	transform = glm::translate(transform, offset);
+	proj = glm::perspective(glm::radians(90.0f), (float)640/(float)480, 0.1f, 100.0f);
+	camera = glm::mat4(1.0f);
+	//glm::vec3 cameraPos = glm::vec3(0.0,0.0,-3.0);
+	//camera = glm::lookAt(cameraPos,
+	//					 glm::vec3(0.0,0.0,0.0),
+	//					 glm::vec3(0.0,1.0,0.0));
+	shader[GRAPHICS_SHADER_COLOR_SOLID] = new ShaderColorSolid();
+	shader[GRAPHICS_SHADER_COLOR_VERTEX] = new ShaderColorVertex();
 	//set screen clear color
 	glClearColor(0.9, 0.9, 1, 1);
 }
@@ -89,7 +97,10 @@ void GraphicsManager::finish(){
 }
 
 void GraphicsManager::solid_color_shader_actions(RenderObject* object){
-	glUniform4f(shader_color_solid_ourColor, object->color.r, object->color.g, object->color.b, object->color.a); //set the color
+	(static_cast<ShaderColorSolid*>(shader[GRAPHICS_SHADER_COLOR_SOLID]))->set_color( object->color.r,
+																		object->color.g,
+																		object->color.b,
+																		object->color.a); //set the color
 }
 void GraphicsManager::vertex_color_shader_actions(RenderObject* object){
 	//there isnt anything to do yet	
@@ -106,8 +117,12 @@ void GraphicsManager::update(){
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	//current object which we are drawing
 	RenderObject* curr = NULL;
+	//iterate over shaders
 	for (int i = 0; i < GRAPHICS_SHADER_SIZE; ++i){
-		glUseProgram(shader_program[i]);
+		shader[i]->use();
+		shader[i]->set_view(glm::value_ptr(camera));
+		shader[i]->set_projection(glm::value_ptr(proj));
+		shader[i]->set_transform(glm::value_ptr(transform));
 		curr = this->tail[i];
 		while(curr != NULL){
 			glBindVertexArray(curr->VAO);
