@@ -33,10 +33,10 @@ unsigned int indices2[] = {
 };
 float background_vertices[] = {
 	//coords			//color
-   -1.0, 1.0, 1.0,		0.0, 0.0, 1.0,
-    1.0, 1.0, 1.0,		0.0, 0.0, 1.0,
-   -1.0, 0.4, 1.0,		1.0, 0.0, 0.0,
-	1.0, 0.4, 1.0,		1.0, 0.0, 0.0
+   -1.0, 1.0, 0.0,		0.0, 0.0, 1.0,
+    1.0, 1.0, 0.0,		0.0, 0.0, 1.0,
+   -1.0, 0.4, 0.0,		1.0, 0.0, 0.0,
+	1.0, 0.4, 0.0,		1.0, 0.0, 0.0
 };
 unsigned int background_indices[] = {
 	0, 1, 2,
@@ -48,13 +48,17 @@ int main(int argc, char* argv[])
 	RenderObject* triangle = Graphics->new_triangles_object(	GRAPHICS_SHADER_COLOR_VERTEX, 
 															sizeof(testvertices), testvertices, 
 							  								sizeof(indices), indices);
+	triangle->set_position(glm::vec3(0.0,0.0,-3.5f));
 	RenderObject* triangle2 = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_SOLID,
 															sizeof(testvertices2), testvertices2,
 															sizeof(indices2), indices2,
-															{0.0, 0.0, 1.0, 0.1});
+															{0.0, 0.0, 1.0, 0.5});
+	triangle2->set_position(glm::vec3(0.0,0.0,-3.5f));
 	RenderObject* background = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_VERTEX,
 	/*i made background to test depth*/						sizeof(background_vertices), background_vertices,
 	/*depth doesnt seem to work yet*/						sizeof(background_indices), background_indices);
+	background->set_position(glm::vec3(0.0,-0.7f,-15.1f));
+	background->set_scale(glm::vec3(20.0,20.0,1.0));
 	Input.init();
 	glfwSetKeyCallback(Graphics->window, Input.key_callback);
 	int frames = 0;

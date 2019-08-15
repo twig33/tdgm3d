@@ -17,11 +17,6 @@ struct Color {
 	float b = 0;
 	float a = 1;
 };
-struct Vector3{
-	float x = 0;
-	float y = 0;
-	float z = 0;
-};
 enum { //GRAPHICS_SHADER_SIZE is always last
 	GRAPHICS_SHADER_COLOR_SOLID, GRAPHICS_SHADER_COLOR_VERTEX, GRAPHICS_SHADER_SIZE
 };
@@ -31,19 +26,17 @@ enum {
 class RenderObject {
 	friend class GraphicsManager;
 	public:
-		void set_position(float x, float y, float z);
-		void set_local_rotation(float x, float y, float z);
-		void set_global_rotation(float x, float y, float z);
-		void set_scale(float x, float y, float z);
+		void set_position(const glm::vec3 &pos);
+		void set_rotation(const glm::vec3 &rot);
+		void set_scale(const glm::vec3 &scalein);
 	private:
 		unsigned int state = GRAPHICS_OBJECT_STATE_ALIVE;
 		Color color;
 		RenderObject* next = NULL;
 		glm::mat4 transform = glm::mat4(1.0f);
-		Vector3 position;
-		Vector3 local_rotation;
-		Vector3 global_rotation;
-		Vector3 scale;
+		glm::mat4 rotation = glm::mat4(1.0f);
+		glm::mat4 position = glm::mat4(1.0f);
+		glm::mat4 scale = glm::mat4(1.0f);
 		void update_transform_matrix();
 		unsigned int VBO;
 		unsigned int EBO;

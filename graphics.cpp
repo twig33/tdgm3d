@@ -3,6 +3,32 @@
 
 GraphicsManager* Graphics;
 
+void RenderObject::set_position(const glm::vec3& pos){
+	position = glm::translate(glm::mat4(1.0f), pos);
+	update_transform_matrix();
+}
+void RenderObject::set_rotation(const glm::vec3& rot){
+	rotation = glm::rotate(glm::mat4(1.0f), glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
+	rotation = glm::rotate(rotation, glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
+	rotation = glm::rotate(rotation, glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
+	update_transform_matrix();
+}
+void RenderObject::set_scale(const glm::vec3& scalein){
+	scale = glm::scale(glm::mat4(1.0f), scalein);
+	update_transform_matrix();
+}
+void RenderObject::update_transform_matrix(){
+//	transform = glm::mat4(1.0f);
+	//transform = glm::rotate(transform, glm::radians(global_rotation[0]), glm::vec3(1.0, 0.0, 0.0));
+	//transform = glm::rotate(transform, glm::radians(global_rotation[1]), glm::vec3(0.0, 1.0, 0.0));
+//	transform = glm::rotate(transform, glm::radians(global_rotation[2]), glm::vec3(0.0, 0.0, 1.0));
+	//transform = glm::translate(transform, position);
+//	transform = glm::rotate(transform, glm::radians(local_rotation[0]), glm::vec3(1.0, 0.0, 0.0));
+//	transform = glm::rotate(transform, glm::radians(local_rotation[1]), glm::vec3(0.0, 1.0, 0.0));
+//	transform = glm::rotate(transform, glm::radians(local_rotation[2]), glm::vec3(0.0, 0.0, 1.0));
+	//transform = glm::scale(transform, scale);	
+	transform = scale * position * rotation;
+}
 RenderObject* GraphicsManager::new_empty_object_push_back(int shader_type){
 	RenderObject* object = new RenderObject;
 	if (this->tail[shader_type] == NULL){
@@ -74,6 +100,9 @@ GraphicsManager::GraphicsManager(){
 	//glew init 
 	glewExperimental = GL_TRUE; //ya uzhe забылdlya chevo eto
 	glewInit();
+	glEnable(GL_DEPTH_TEST); 
+	glEnable(GL_BLEND); 
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 	//create shaders
 	glm::mat4 identity = glm::mat4(1.0f);
 	glm::vec3 offset = glm::vec3(0.0f,0.0f,-2.5f);
@@ -122,9 +151,9 @@ void GraphicsManager::update(){
 		shader[i]->use();
 		shader[i]->set_view(glm::value_ptr(camera));
 		shader[i]->set_projection(glm::value_ptr(proj));
-		shader[i]->set_transform(glm::value_ptr(transform));
 		curr = this->tail[i];
 		while(curr != NULL){
+			shader[i]->set_transform(glm::value_ptr(curr->transform));
 			glBindVertexArray(curr->VAO);
 			do_shader_specific_actions(i, curr);
 			glDrawElements(GL_TRIANGLES, curr->vertices_count, GL_UNSIGNED_INT, 0);
