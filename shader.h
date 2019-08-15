@@ -12,6 +12,7 @@ class Shader {
 		void set_transform(const float* transform);
 		void set_projection(const float* projection);
 		void set_view(const float* view);
+		virtual void bind_attributes(){};
 	protected:
 		int shader_program;
 		void init(const char* vertex_shader_path, const char* fragment_shader_path);
@@ -30,6 +31,7 @@ class ShaderColorSolid : public Shader {
 		ShaderColorSolid()
 		{init("shader_color_solid.vs", "shader_color_solid.frag");};
 		void set_color(float r, float g, float b, float a = 1.0);
+		void bind_attributes();
 	protected:
 		const char* color_uniform_name = "ourColor";
 		int color_uniform_location;
@@ -39,6 +41,7 @@ class ShaderColorVertex : public Shader {
 	public:
 		ShaderColorVertex()
 		{init("shader_color_vertex.vs", "shader_color_vertex.frag");};
+		void bind_attributes();
 	protected:
 		void load_specific_uniforms(){
 			std::cout << "\n" << "vertexcolorhsader specific uniforms loaded\n";

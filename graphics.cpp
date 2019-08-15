@@ -66,18 +66,7 @@ RenderObject* GraphicsManager::new_triangles_object(int shader_type,
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, object->EBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, size_indices, indices, GL_DYNAMIC_DRAW);
 	//attributes are shader specific
-	switch (shader_type){
-		case GRAPHICS_SHADER_COLOR_SOLID:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			break;
-		case GRAPHICS_SHADER_COLOR_VERTEX:
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
-			glEnableVertexAttribArray(0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
-			glEnableVertexAttribArray(1);
-			break;
-	}
+	shader[shader_type]->bind_attributes();
 	//cleanup unbind all
 	glBindVertexArray(0);
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
