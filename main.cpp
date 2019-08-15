@@ -49,7 +49,7 @@ int main(int argc, char* argv[])
 															sizeof(testvertices), testvertices, 
 							  								sizeof(indices), indices);
 	triangle->set_position(glm::vec3(0.0,0.0,-3.5f));
-	RenderObject* triangle2 = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_SOLID,
+	RenderObject* triangle2 = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT,
 															sizeof(testvertices2), testvertices2,
 															sizeof(indices2), indices2,
 															{0.0, 0.0, 1.0, 0.5});
