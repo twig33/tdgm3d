@@ -54,9 +54,16 @@ int main(int argc, char* argv[])
 															sizeof(indices2), indices2,
 															{0.0, 0.0, 1.0, 0.5});
 	triangle2->set_position(glm::vec3(0.0,0.0,-3.5f));
+	RenderObject* copy = Graphics->new_copy_object(triangle2);
+	RenderObject* copy2 = Graphics->new_copy_object(triangle2);
+	copy2->set_color(1.0f, 0.0f, 0.0f, 0.5f);
+	RenderObject* copy3 = Graphics->new_copy_object(triangle2);
+	copy->set_position(glm::vec3(-0.5, 0.0, -4.15f));
+	copy2->set_position(glm::vec3(1.0, 0.0, -4.1f));
+	copy3->set_position(glm::vec3(1.5, 0.0, -4.05f));
 	RenderObject* background = Graphics->new_triangles_object(GRAPHICS_SHADER_COLOR_VERTEX,
 	/*i made background to test depth*/						sizeof(background_vertices), background_vertices,
-	/*depth doesnt seem to work yet*/						sizeof(background_indices), background_indices);
+															sizeof(background_indices), background_indices);
 	background->set_position(glm::vec3(0.0,-0.7f,-15.1f));
 	background->set_scale(glm::vec3(20.0,20.0,1.0));
 	Input.init();

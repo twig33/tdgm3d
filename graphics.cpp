@@ -7,20 +7,20 @@ RenderObject::~RenderObject(){
 	glDeleteBuffers(1, &VBO);
 	glDeleteBuffers(1, &EBO);
 	glDeleteVertexArrays(1, &VAO);
-	delete this;
+	//delete this;
+}
+void RenderObject::set_color(const float r, const float g, const float b, const float a){
+	color = {r, g, b, a};	
 }
 void RenderObject::set_position(const glm::vec3& pos){
-/*	if (pos.z != this->position.z){
-		if ((this->previous && this->previous->position.z > pos.z) ||
-			(this->next && this->next->position.z < pos.z) ||
-		    (!(this->previous) && !(this->next))){
-			Graphics->remove_object(this, false);
-			Graphics->insert_by_z(this);
-		}
-	}*/
+	float old_position_z = position.z;
 	position_mat = glm::translate(glm::mat4(1.0f), pos);
 	position = pos;
 	update_transform_matrix();
+	if (this->shader_type == GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT && pos.z != old_position_z){
+		Graphics->remove_object(this, false);
+		Graphics->insert_by_z(this);
+	}
 }
 void RenderObject::set_rotation(const glm::vec3& rot){
 	rotation_mat = glm::rotate(glm::mat4(1.0f), glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
@@ -35,74 +35,107 @@ void RenderObject::set_scale(const glm::vec3& scalein){
 void RenderObject::update_transform_matrix(){
 	transform = scale_mat * position_mat * rotation_mat;
 }
-void GraphicsManager::remove_object(RenderObject* object, bool destroy){
+
+void GraphicsManager::push_back(RenderObject* object){
 	int shader_type = object->shader_type;
-	if (!object->previous){ //if previous is null then the object is tail
-		this->tail[shader_type] = object->next;
+	if (tail[shader_type] == NULL){
+		tail[shader_type] = object;
 		return;
 	}
-	else if (!object->next){ //if next is null then the object is head
-		this->head[shader_type] = object->previous;
+	if (head[shader_type] == NULL){
+		head[shader_type] = object;
+		object->previous = tail[shader_type];
+		object->next = NULL;
+		tail[shader_type]->next = object;
 		return;
+	}
+	head[shader_type]->next = object;
+	object->previous = head[shader_type];
+	object->next = NULL;
+	head[shader_type] = object;
+	return;
+}
+void GraphicsManager::insert_object_at(RenderObject* object, RenderObject* at){
+	int shader_type = at->shader_type;
+	if (at == tail[shader_type]){
+		tail[shader_type] = object;
+		object->previous = NULL;
+		object->next = at;
+		at->previous = object;
+		if (head[shader_type] == NULL){
+			head[shader_type] = at;	
+		}
+		return;
+	}
+	object->next = at;
+	object->previous = at->previous;
+	at->previous->next = object;
+	at->previous = object;
+}
+void GraphicsManager::remove_object(RenderObject* object, bool destroy){
+	int shader_type = object->shader_type;
+	if (object == tail[shader_type]){
+		tail[shader_type] = NULL;
+		if (object->next != NULL){
+			tail[shader_type] = object->next;
+			tail[shader_type]->previous = NULL;
+		}
+	}
+	else if (object == head[shader_type]){
+		if (object->previous == tail[shader_type]){
+			head[shader_type] = NULL;
+			object->previous->next = NULL;
+		}
+		else {
+			head[shader_type] = object->previous;
+			head[shader_type]->next = NULL;	
+		}
 	}
 	else {
 		object->previous->next = object->next;
 		object->next->previous = object->previous;
 	}
+	object->previous = NULL;
+	object->next = NULL;
 	if (destroy){
 		delete object;
 	}
 }
 void GraphicsManager::insert_by_z(RenderObject* object) {//this should only be used for GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT
 	int shader_type = object->shader_type;
-	if (this->tail[shader_type] == NULL){
-		this->tail[shader_type] = object;
-		return;
-	}
-	if (this->tail[shader_type]->position.z >= object->position.z){
-		RenderObject* old_tail = this->tail[shader_type];
-		this->tail[shader_type] = object;
-		this->tail[shader_type]->next = old_tail;
-		old_tail->previous = this->tail[shader_type];
-		return;
-	}
-	RenderObject* curr = this->tail[shader_type];
-	while (curr != NULL && curr->next != NULL){
+	RenderObject* curr = tail[shader_type];
+	while(curr != NULL){
 		if (curr->position.z >= object->position.z){
-			RenderObject* right = curr;
-			RenderObject* left = curr->previous;
-			right->previous = object;
-			left->next = object;
-			object->previous = left;
-			object->next = right;
+			insert_object_at(object, curr);	
 			return;
 		}
 		curr = curr->next;
 	}
-	RenderObject* old_head = this->head[shader_type];
-	old_head->next = object;
-	object->previous = old_head;
-	this->head[shader_type] = object;
+	push_back(object); //empty list or object has the biggest z
 }
-RenderObject* GraphicsManager::new_empty_object_push_back(int shader_type){
+
+RenderObject* GraphicsManager::new_empty_object(int shader_type){
 	RenderObject* object = new RenderObject;
 	object->shader_type = shader_type;
 	if (shader_type == GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT){
 		insert_by_z(object);
-		return object;
 	}
-	if (this->tail[shader_type] == NULL){
-		this->tail[shader_type] = object;	
-	}else if (this->head[shader_type] == NULL){
-		this->head[shader_type] = object;
-		this->tail[shader_type]->next = this->head[shader_type];
-		this->head[shader_type]->previous = this->tail[shader_type];
-	}else{
-		this->head[shader_type]->next = object;
-		object->previous = this->head[shader_type];
-		this->head[shader_type] = object;
+	else {
+		push_back(object);
 	}
 	return object;
+}
+
+RenderObject* GraphicsManager::new_copy_object(RenderObject* original){
+	RenderObject* copy = new_empty_object(original->shader_type);
+	copy->shader_type = original->shader_type;
+	copy->state = original->state;
+	copy->color = original->color;
+	copy->VAO = original->VAO;
+	copy->VBO = original->VBO;
+	copy->EBO = original->EBO;
+	copy->vertices_count = original->vertices_count;
+	return copy;
 }
 
 RenderObject* GraphicsManager::new_triangles_object(int shader_type, 
@@ -120,7 +153,7 @@ RenderObject* GraphicsManager::new_triangles_object(int shader_type,
 		std::cout << "Invalid shader type selected, color isn't transparent, fixing";
 		shader_type = GRAPHICS_SHADER_COLOR_SOLID;
 	}
-	RenderObject* object = this->new_empty_object_push_back(shader_type);
+	RenderObject* object = this->new_empty_object(shader_type);
 	object->vertices_count = size_indices / sizeof(unsigned int);
 	if (shader_type == GRAPHICS_SHADER_COLOR_SOLID || shader_type == GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT){
 		object->color = color; 	//this is for the solid color shader only because

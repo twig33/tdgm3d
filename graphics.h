@@ -30,6 +30,7 @@ class RenderObject {
 	friend class GraphicsManager;
 	public:
 		~RenderObject();
+		void set_color(const float r, const float g, const float b, const float a);
 		void set_position(const glm::vec3 &pos);
 		void set_rotation(const glm::vec3 &rot);
 		void set_scale(const glm::vec3 &scalein);
@@ -52,25 +53,29 @@ class RenderObject {
 };
 
 class GraphicsManager {
+	friend class RenderObject;
 	public:
 		GraphicsManager();
 		void finish();
 		void update();
+		RenderObject* new_copy_object(RenderObject* original);
 		RenderObject* new_triangles_object(	int shader_type, 
 											std::size_t size_vertices, float vertices[],
 							  				std::size_t size_indices, unsigned int indices[],
 										  	Color color = {0.0, 0.0, 0.0, 1.0});
-		void remove_object(RenderObject* object, bool destroy = true);
-		void insert_by_z(RenderObject* object);
 		bool quit = 0;
 		GLFWwindow* window;
 	private:
 		glm::mat4 proj;
 		glm::mat4 camera;
 		glm::mat4 transform;
+		void push_back(RenderObject* object);
+		void remove_object(RenderObject* object, bool destroy = true);
+		void insert_object_at(RenderObject* object, RenderObject* at);
+		void insert_by_z(RenderObject* object);
 		RenderObject* tail[GRAPHICS_SHADER_SIZE] = {NULL}; //doubly linked list
 		RenderObject* head[GRAPHICS_SHADER_SIZE] = {NULL}; //doubly linked list
-		RenderObject* new_empty_object_push_back(int shader_type);
+		RenderObject* new_empty_object(int shader_type);
 		Shader* shader[GRAPHICS_SHADER_SIZE]; //shaders storage
 		typedef void (GraphicsManager::*void_func)(RenderObject*); //shader specific action function pointer typedef
 		void solid_color_shader_actions(RenderObject* object); 
