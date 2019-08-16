@@ -8,11 +8,12 @@
 #include <iostream>
 class Shader {
 	public:
-		void use();//
+		void use();
 		void set_transform(const float* transform);
 		void set_projection(const float* projection);
 		void set_view(const float* view);
 		virtual void bind_attributes(){};
+		unsigned int stride = 0;
 	protected:
 		int shader_program;
 		void init(const char* vertex_shader_path, const char* fragment_shader_path);
@@ -29,7 +30,8 @@ class Shader {
 class ShaderColorSolid : public Shader {
 	public:
 		ShaderColorSolid()
-		{init("shader_color_solid.vs", "shader_color_solid.frag");};
+		{init("shader_color_solid.vs", "shader_color_solid.frag");
+		 stride = 3;};
 		void set_color(float r, float g, float b, float a = 1.0);
 		void bind_attributes();
 	protected:
@@ -40,7 +42,8 @@ class ShaderColorSolid : public Shader {
 class ShaderColorVertex : public Shader {
 	public:
 		ShaderColorVertex()
-		{init("shader_color_vertex.vs", "shader_color_vertex.frag");};
+		{init("shader_color_vertex.vs", "shader_color_vertex.frag");
+		 stride = 5;};
 		void bind_attributes();
 	protected:
 		void load_specific_uniforms(){

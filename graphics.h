@@ -32,9 +32,14 @@ class RenderObject {
 		~RenderObject();
 		void set_color(const float r, const float g, const float b, const float a);
 		void set_position(const glm::vec3 &pos);
+		void translate(const glm::vec3 &tr);
 		void set_rotation(const glm::vec3 &rot);
 		void set_scale(const glm::vec3 &scalein);
 		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
+		float bounds_left = 0;
+		float bounds_right = 0;
+		float bounds_up = 0;
+		float bounds_down = 0;
 	private:
 		unsigned int state = GRAPHICS_OBJECT_STATE_ALIVE;
 		unsigned int shader_type;

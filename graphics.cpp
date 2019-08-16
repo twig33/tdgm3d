@@ -22,6 +22,15 @@ void RenderObject::set_position(const glm::vec3& pos){
 		Graphics->insert_by_z(this);
 	}
 }
+void RenderObject::translate(const glm::vec3& tr){
+	position_mat = glm::translate(position_mat, tr);
+	position += tr;
+	update_transform_matrix();
+	if (tr.z != 0 && shader_type == GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT){
+		Graphics->remove_object(this, false);
+		Graphics->insert_by_z(this);
+	}
+}
 void RenderObject::set_rotation(const glm::vec3& rot){
 	rotation_mat = glm::rotate(glm::mat4(1.0f), glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
 	rotation_mat = glm::rotate(rotation_mat, glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
@@ -135,6 +144,10 @@ RenderObject* GraphicsManager::new_copy_object(RenderObject* original){
 	copy->VBO = original->VBO;
 	copy->EBO = original->EBO;
 	copy->vertices_count = original->vertices_count;
+	copy->bounds_left = original->bounds_left;
+	copy->bounds_right = original->bounds_right;
+	copy->bounds_up = original->bounds_up;
+	copy->bounds_down = original->bounds_down;
 	return copy;
 }
 
@@ -158,6 +171,24 @@ RenderObject* GraphicsManager::new_triangles_object(int shader_type,
 	if (shader_type == GRAPHICS_SHADER_COLOR_SOLID || shader_type == GRAPHICS_SHADER_COLOR_SOLID_TRANSPARENT){
 		object->color = color; 	//this is for the solid color shader only because
 	}							//in per vertex color shader colors are in the VBO
+	object->bounds_left = vertices[0];
+	object->bounds_right = vertices[0];
+	object->bounds_up = vertices[1];
+	object->bounds_down = vertices[1];
+	for (int i = 0; i < object->vertices_count * shader[shader_type]->stride; i += shader[shader_type]->stride){
+		if (object->bounds_left > vertices[i]){
+			object->bounds_left = vertices[i];	
+		}
+		if (object->bounds_right < vertices[i]){
+			object->bounds_right = vertices[i];	
+		}
+		if (object->bounds_up < vertices[i+1]){
+			object->bounds_up = vertices[i+1];	
+		}
+		if (object->bounds_down > vertices[i+1]){
+			object->bounds_down = vertices[i+1];	
+		}
+	}
 	//generate vbo ebo vao
 	glGenBuffers(1, &(object->VBO));
 	glGenBuffers(1, &(object->EBO));
