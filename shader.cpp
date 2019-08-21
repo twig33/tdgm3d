@@ -3,6 +3,8 @@
 #include <helper.h> //loadFile
 #include <iostream>
 
+ShaderManager* Shaders;
+
 glm::mat4 temp = glm::mat4(1.0f);
 void Shader::init (const char* vertex_shader_path, const char* fragment_shader_path) {
 	//shaders

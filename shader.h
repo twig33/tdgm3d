@@ -50,4 +50,26 @@ class ShaderColorVertex : public Shader {
 			std::cout << "\n" << "vertexcolorhsader specific uniforms loaded\n";
 		}
 };
+enum { //GRAPHICS_SHADER_SIZE is always last
+	GRAPHICS_SHADER_COLOR_SOLID, 
+	GRAPHICS_SHADER_COLOR_VERTEX,
+	GRAPHICS_SHADER_SIZE
+};
+class ShaderManager {
+	public:
+		ShaderManager() {
+			shaders[GRAPHICS_SHADER_COLOR_SOLID] = new ShaderColorSolid();
+			shaders[GRAPHICS_SHADER_COLOR_VERTEX] = new ShaderColorVertex();
+		};
+		Shader* get_shader(unsigned int index){
+			if (index >= GRAPHICS_SHADER_SIZE){
+				std::cout << "Invalid shader id\n";
+				return NULL;
+			}
+			return shaders[index];
+		}
+	private:
+		Shader* shaders[GRAPHICS_SHADER_SIZE];
+};
+extern ShaderManager* Shaders;
 #endif
