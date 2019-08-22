@@ -88,10 +88,8 @@ GraphicsManager::GraphicsManager(){
 	glEnable(GL_BLEND); 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 	//create shaders
-	glm::mat4 identity = glm::mat4(1.0f);
 	proj = glm::perspective(glm::radians(90.0f), (float)640/(float)480, 0.1f, 100.0f);
 	camera = glm::mat4(1.0f);
-//	camera = glm::translate(camera, glm::vec3(0.0f, 0.0f, 3.0f));
 	//set screen clear color
 	glClearColor(0.9, 0.9, 1, 1);
 	Shaders = new ShaderManager();

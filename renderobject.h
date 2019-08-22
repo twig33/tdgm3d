@@ -67,10 +67,21 @@ class RenderObject {
 		RenderObject (VertexData* vertex_data) : vertex_data(vertex_data) {};
 		Transform transform;
 		VertexData* const vertex_data;
+		void set_cycle_colors(bool in){
+			//if (vertex_data->shader_type != GRAPHICS_SHADER_COLOR_SOLID){
+			//	std::cout << "Cycle colors bool won't have an effect if the shader isn't solidcolor\n";
+			//	return;
+			//}
+			cycle_colors = in;
+		}
+		bool get_cycle_colors(){
+			return cycle_colors;	
+		}
 		void set_color(float r, float g, float b, float a = -1.0f);
 		Color get_color();
 	private:
 		~RenderObject();
+		bool cycle_colors = false;
 		Color color = {1.0f, 1.0f, 1.0f, 1.0f};
 };
 class RenderObjectNode {

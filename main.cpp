@@ -33,10 +33,10 @@ unsigned int indices2[] = {
 };
 float background_vertices[] = {
 	//coords			//color
-   -3.0, 3.0, 0.0,		0.0, 0.0, 1.0,
-    3.0, 3.0, 0.0,		0.0, 0.0, 1.0,
-   -3.0,-3.0, 0.0,		1.0, 0.0, 0.0,
-	3.0,-3.0, 0.0,		1.0, 0.0, 0.0
+   -3.0, 3.0, 0.0,//		0.0, 0.0, 1.0,
+    3.0, 3.0, 0.0,//		0.0, 0.0, 1.0,
+   -3.0,-3.0, 0.0,//		1.0, 0.0, 0.0,
+	3.0,-3.0, 0.0,//	1.0, 0.0, 0.0
 };
 unsigned int background_indices[] = {
 	0, 1, 2,
@@ -47,10 +47,11 @@ int main(int argc, char* argv[])
 	Graphics = new GraphicsManager();
 	Input.init();
 	glfwSetKeyCallback(Graphics->window, Input.key_callback);
-	VertexData* bg_vert = new VertexData(GRAPHICS_SHADER_COLOR_VERTEX, sizeof(background_vertices), background_vertices,
+	VertexData* bg_vert = new VertexData(GRAPHICS_SHADER_COLOR_SOLID, sizeof(background_vertices), background_vertices,
 										 								sizeof(background_indices), background_indices);
 	RenderObject* bg = new RenderObject(bg_vert); Graphics->push(bg);
 	bg->transform.set_position(glm::vec3(0.0f, 0.0f, -5.0f));
+	bg->set_cycle_colors(true);
 	//create vertex data
 	VertexData* data2 = new VertexData(GRAPHICS_SHADER_COLOR_SOLID, sizeof(testvertices2), testvertices2,
 									   								sizeof(indices2), indices2);
@@ -64,16 +65,16 @@ int main(int argc, char* argv[])
 	copy[1] = new RenderObject(data2); Graphics->push(copy[1]);
 	copy[2] = new RenderObject(data2); Graphics->push(copy[2]);
 	copy[0]->set_color(1.0f, 0.0f, 0.0f, 0.7f);
-	copy[1]->set_color(0.0f, 1.0f, 0.0f, 0.7f);
+	copy[1]->set_color(0.0f, 1.0f, 0.0f, 0.3f);
 	copy[2]->set_color(0.0f, 0.0f, 1.0f, 0.7f);
 	copy[0]->transform.set_position(glm::vec3(-0.5, 0.0, -4.15f));
 	copy[1]->transform.set_position(glm::vec3(1.0, 0.0, -4.1f));
 	copy[2]->transform.set_position(glm::vec3(1.5, 0.0, -4.05f));
 	//initial movement speed
 	glm::vec3 speed[3];
-	speed[0] = glm::vec3(1.0f, 0.7f, 0.0f);
-	speed[1] = glm::vec3(-1.3f, 1.0f, 0.0f);
-	speed[2] = glm::vec3(1.0f, -1.5f, 0.0f);
+	speed[0] = glm::vec3(0.0f, 0.0f, -1.0f);
+	speed[1] = glm::vec3(0.0f, 0.0f, 0.7f);
+	speed[2] = glm::vec3(0.0f,  0.0f, 1.2f);
 	int frames = 0;
 	float color = 0.0f;
 	while(!Graphics->quit){
@@ -92,6 +93,12 @@ int main(int argc, char* argv[])
 			}
 			if (copy[i]->transform.get_position().y + copy[i]->vertex_data->get_bounds_down() < -4.0f){
 					speed[i].y *= -1;
+			}
+			if (copy[i]->transform.get_position().z < -4.95f){
+					speed[i].z *= -1;
+			}
+			if (copy[i]->transform.get_position().z > -4.0f){
+					speed[i].z *= -1;
 			}
 		}
 		Graphics->update(); 

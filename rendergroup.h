@@ -1,6 +1,7 @@
 #ifndef RENDERGROUP_H
 #define RENDERGROUP_H
 
+#include <iostream>
 #include <shader.h>
 #include <renderobject.h>
 
@@ -18,6 +19,15 @@ class RenderGroup {
 		RenderObjectNode* head = NULL; //doubly linked list
 	private:
 		RenderGroup(unsigned int group_type, unsigned int shader_type) : group_type(group_type), shader_type(shader_type) {};
+};
+
+class RenderGroupSolidColorCycle : public RenderGroup {
+	public:
+		void update();
+	private:
+		using RenderGroup::RenderGroup;
+		float color = 0.0f;
+		float speed = 0.01f;
 };
 
 class OldPosZData {
@@ -64,12 +74,14 @@ class RenderGroupManager {
 		enum {
 			GROUP_SHADER_COLOR_VERTEX,
 			GROUP_SHADER_COLOR_SOLID,
+			GROUP_SHADER_COLOR_SOLID_CYCLE,
 			GROUP_SHADER_COLOR_SOLID_TRANSPARENT, //right now there can only be one transparent group
 			GROUP_SIZE
 		};
 		RenderGroup* groups[GROUP_SIZE] = {
 			groups[GROUP_SHADER_COLOR_VERTEX] = new RenderGroup(GROUP_SHADER_COLOR_SOLID, GRAPHICS_SHADER_COLOR_VERTEX),
 			groups[GROUP_SHADER_COLOR_SOLID] = new RenderGroup(GROUP_SHADER_COLOR_SOLID, GRAPHICS_SHADER_COLOR_SOLID),
+			groups[GROUP_SHADER_COLOR_SOLID_CYCLE] = new RenderGroupSolidColorCycle(GROUP_SHADER_COLOR_SOLID_CYCLE, GRAPHICS_SHADER_COLOR_SOLID),
 			groups[GROUP_SHADER_COLOR_SOLID_TRANSPARENT] = new RenderGroupTransparent(GROUP_SHADER_COLOR_SOLID_TRANSPARENT, GRAPHICS_SHADER_COLOR_SOLID),
 		};
 };	

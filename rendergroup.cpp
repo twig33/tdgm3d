@@ -108,6 +108,32 @@ void RenderGroup::remove_node(RenderObjectNode* node, bool destroy){
 	}
 }
 
+void RenderGroupSolidColorCycle::update(){
+	float r = 0.0f, g = 0.0f, b = 0.0f;
+	color += speed;
+	if (color >= 0 && color <= 1){
+		r = 1 - color;
+		g = color;
+	}
+	else if (color > 1 && color <= 2){
+		g = 1 - (color - 1);
+		b = color - 1;
+	}
+	else if (color > 2 && color <= 3){
+		b = 1 - (color - 2);
+		r = color - 2;
+	}
+	else {
+		color = 0;	
+		r = 1 - color;
+		g = color;
+	}
+	RenderObjectNode* curr = tail;
+	while (curr != NULL){
+		curr->object->set_color(r, g, b, 1.0f);
+		curr = curr->next;
+	}
+}
 void RenderGroupTransparent::insert_by_z(RenderObjectNode* node){
 	RenderObjectNode* curr = tail;
 	while(curr != NULL){
@@ -167,11 +193,15 @@ unsigned int RenderGroupManager::determine_group(RenderObject* object){
 			return GROUP_SHADER_COLOR_VERTEX;
 			break;
 		case GRAPHICS_SHADER_COLOR_SOLID:
-			if (object->get_color().a == 1.0){
-				return GROUP_SHADER_COLOR_SOLID;	
+			if (object->get_color().a < 1.0){
+				return GROUP_SHADER_COLOR_SOLID_TRANSPARENT;	
 			}
 			else{
-				return GROUP_SHADER_COLOR_SOLID_TRANSPARENT;	
+				if (object->get_cycle_colors()){
+					return GROUP_SHADER_COLOR_SOLID_CYCLE;	
+				}else{
+					return GROUP_SHADER_COLOR_SOLID;	
+				}
 			}
 			break;
 	}
@@ -237,7 +267,8 @@ void RenderGroupManager::update_groups(){
 
 void RenderGroupManager::draw(){
 	check_group_members(GROUP_SHADER_COLOR_SOLID);
-	check_group_members(GROUP_SHADER_COLOR_SOLID_TRANSPARENT); //we only check these two right now because 1 group for vertex shader
+	check_group_members(GROUP_SHADER_COLOR_SOLID_CYCLE);
+	check_group_members(GROUP_SHADER_COLOR_SOLID_TRANSPARENT); //we only check these right now because 1 group for vertex shader
 	update_groups();
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	draw_groups();
