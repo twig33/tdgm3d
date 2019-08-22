@@ -7,35 +7,6 @@
 #include <shader.h>
 #include <renderobject.h>
 
-glm::vec3 Transform::get_position(){
-	return position;	
-}
-const float* Transform::get_transform_mat_value_ptr() const {
-	return glm::value_ptr(transform);
-}
-void Transform::set_position(const glm::vec3& pos){
-	position_mat = glm::translate(glm::mat4(1.0f), pos);
-	position = pos;
-	update_transform_matrix();
-}
-void Transform::translate(const glm::vec3& tr){
-	position_mat = glm::translate(position_mat, tr);
-	position += tr;
-	update_transform_matrix();
-}
-void Transform::set_rotation(const glm::vec3& rot){
-	rotation_mat = glm::rotate(glm::mat4(1.0f), glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
-	rotation_mat = glm::rotate(rotation_mat, glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
-	rotation_mat = glm::rotate(rotation_mat, glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
-	update_transform_matrix();
-}
-void Transform::set_scale(const glm::vec3& scalein){
-	scale_mat = glm::scale(glm::mat4(1.0f), scalein);
-	update_transform_matrix();
-}
-void Transform::update_transform_matrix(){
-	transform = scale_mat * position_mat * rotation_mat;
-}
 VertexData::VertexData(unsigned int st, std::size_t size_vertices, float vertices[],
 										std::size_t size_indices, unsigned int indices[])
 	: shader_type(st) {
@@ -84,6 +55,49 @@ VertexData::~VertexData(){
 	glDeleteBuffers(1, &(EBO));
 	glDeleteVertexArrays(1, &(VAO));
 }
+
+glm::vec3 Transform::get_position(){
+	return position;	
+}
+const float* Transform::get_transform_mat_value_ptr() const {
+	return glm::value_ptr(transform);
+}
+void Transform::set_position(const glm::vec3& pos){
+	position_mat = glm::translate(glm::mat4(1.0f), pos);
+	position = pos;
+	update_transform_matrix();
+}
+void Transform::translate(const glm::vec3& tr){
+	position_mat = glm::translate(position_mat, tr);
+	position += tr;
+	update_transform_matrix();
+}
+void Transform::set_rotation(const glm::vec3& rot){
+	rotation_mat = glm::rotate(glm::mat4(1.0f), glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));
+	rotation_mat = glm::rotate(rotation_mat, glm::radians(rot.y), glm::vec3(0.0, 1.0, 0.0));
+	rotation_mat = glm::rotate(rotation_mat, glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
+	update_transform_matrix();
+}
+void Transform::set_scale(const glm::vec3& scalein){
+	scale_mat = glm::scale(glm::mat4(1.0f), scalein);
+	update_transform_matrix();
+}
+void Transform::update_transform_matrix(){
+	transform = scale_mat * position_mat * rotation_mat;
+}
+
+void RenderObject::set_cycle_colors(bool in){
+	if (vertex_data->shader_type != GRAPHICS_SHADER_COLOR_SOLID){
+		std::cout << "Cycle colors bool won't have an effect if the shader isn't solidcolor\n";
+		return;
+	}
+	cycle_colors = in;
+}
+
+bool RenderObject::get_cycle_colors(){
+	return cycle_colors;	
+}
+
 void RenderObject::set_color(const float r, const float g, const float b, const float a){
 	if (vertex_data->shader_type != GRAPHICS_SHADER_COLOR_SOLID){
 		std::cout << "Setting the color won't have an effect if the shader isnt solidcolor\n";
@@ -96,7 +110,4 @@ void RenderObject::set_color(const float r, const float g, const float b, const 
 }
 Color RenderObject::get_color(){
 	return color;	
-}
-RenderObject::~RenderObject(){
-	delete vertex_data;	
 }

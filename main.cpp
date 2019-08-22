@@ -6,6 +6,7 @@
 
 #include <graphics.h>
 #include <input.h>
+#include <gamestate.h>
 
 #include <GLFW/glfw3.h>
 
@@ -46,6 +47,9 @@ int main(int argc, char* argv[])
 {
 	Graphics = new GraphicsManager();
 	Input.init();
+	GameState* gamestate;
+	gamestate = new Game();
+	gamestate->init();
 	glfwSetKeyCallback(Graphics->window, Input.key_callback);
 	VertexData* bg_vert = new VertexData(GRAPHICS_SHADER_COLOR_SOLID, sizeof(background_vertices), background_vertices,
 										 								sizeof(background_indices), background_indices);
@@ -68,39 +72,37 @@ int main(int argc, char* argv[])
 	copy[1]->set_color(0.0f, 1.0f, 0.0f, 0.3f);
 	copy[2]->set_color(0.0f, 0.0f, 1.0f, 0.7f);
 	copy[0]->transform.set_position(glm::vec3(-0.5, 0.0, -4.15f));
-	copy[1]->transform.set_position(glm::vec3(1.0, 0.0, -4.1f));
-	copy[2]->transform.set_position(glm::vec3(1.5, 0.0, -4.05f));
+	copy[1]->transform.set_position(glm::vec3(1.0, 0.0,  -4.2f));
+	copy[2]->transform.set_position(glm::vec3(1.5, 0.0,  -4.25f));
 	//initial movement speed
 	glm::vec3 speed[3];
-	speed[0] = glm::vec3(0.0f, 0.0f, -1.0f);
-	speed[1] = glm::vec3(0.0f, 0.0f, 0.7f);
-	speed[2] = glm::vec3(0.0f,  0.0f, 1.2f);
+	speed[0] = glm::vec3(0.0f, 0.0f,  0.0f);
+	speed[1] = glm::vec3(0.0f, 0.0f, 0.0f);
+	speed[2] = glm::vec3(0.0f,  0.0f, 0.0f);
 	int frames = 0;
 	float color = 0.0f;
 	while(!Graphics->quit){
 		double time_before = glfwGetTime();
 		//main
 		for (int i = 0; i < 3; ++i){
+			int axis_x, axis_y;
+			if (Input.keys[GLFW_KEY_D] == Input.keys[GLFW_KEY_A]){
+				axis_x = 0;	
+			}
+			else {
+				axis_x = Input.keys[GLFW_KEY_D] ? 1 : -1;	
+			}
+			if (Input.keys[GLFW_KEY_W] == Input.keys[GLFW_KEY_S]){
+				axis_y = 0;	
+			}
+			else {
+				axis_y = Input.keys[GLFW_KEY_W] ? 1 : -1;	
+			}
+			speed[i].x = axis_x;
+			speed[i].y = axis_y;
 			copy[i]->transform.translate(speed[i] * 0.05f * (float)multiplier);
-			if (copy[i]->transform.get_position().x + copy[i]->vertex_data->get_bounds_left() < -5.5f){
-					speed[i].x *= -1;
-			}
-			if (copy[i]->transform.get_position().x + copy[i]->vertex_data->get_bounds_right() > 5.5f){
-					speed[i].x *= -1;
-			}
-			if (copy[i]->transform.get_position().y + copy[i]->vertex_data->get_bounds_up() > 4.0f){
-					speed[i].y *= -1;
-			}
-			if (copy[i]->transform.get_position().y + copy[i]->vertex_data->get_bounds_down() < -4.0f){
-					speed[i].y *= -1;
-			}
-			if (copy[i]->transform.get_position().z < -4.95f){
-					speed[i].z *= -1;
-			}
-			if (copy[i]->transform.get_position().z > -4.0f){
-					speed[i].z *= -1;
-			}
 		}
+		gamestate->update();
 		Graphics->update(); 
 		//main
 		double time_after = glfwGetTime();

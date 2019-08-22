@@ -7,22 +7,6 @@ struct Color {
 	float a = 1;
 };
 
-class Transform {
-	public:
-		void set_position(const glm::vec3& pos);
-		glm::vec3 get_position ();
-		const float* get_transform_mat_value_ptr() const;
-		void translate(const glm::vec3& tr);
-		void set_rotation(const glm::vec3& rot);
-		void set_scale(const glm::vec3& scalein);
-	private:
-		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
-		glm::mat4 transform = glm::mat4(1.0f);
-		glm::mat4 rotation_mat = glm::mat4(1.0f);
-		glm::mat4 position_mat = glm::mat4(1.0f);
-		glm::mat4 scale_mat = glm::mat4(1.0f);
-		void update_transform_matrix();
-};
 class VertexData {
 	friend class RenderObject;
 	friend class GraphicsManager;
@@ -60,6 +44,22 @@ class VertexData {
 		unsigned int EBO;
 		unsigned int VAO;
 };
+class Transform {
+	public:
+		void set_position(const glm::vec3& pos);
+		glm::vec3 get_position ();
+		const float* get_transform_mat_value_ptr() const;
+		void translate(const glm::vec3& tr);
+		void set_rotation(const glm::vec3& rot);
+		void set_scale(const glm::vec3& scalein);
+	private:
+		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
+		glm::mat4 transform = glm::mat4(1.0f);
+		glm::mat4 rotation_mat = glm::mat4(1.0f);
+		glm::mat4 position_mat = glm::mat4(1.0f);
+		glm::mat4 scale_mat = glm::mat4(1.0f);
+		void update_transform_matrix();
+};
 class RenderObject {
 	friend class GraphicsManager;
 	friend class RenderGroupManager;
@@ -67,20 +67,12 @@ class RenderObject {
 		RenderObject (VertexData* vertex_data) : vertex_data(vertex_data) {};
 		Transform transform;
 		VertexData* const vertex_data;
-		void set_cycle_colors(bool in){
-			//if (vertex_data->shader_type != GRAPHICS_SHADER_COLOR_SOLID){
-			//	std::cout << "Cycle colors bool won't have an effect if the shader isn't solidcolor\n";
-			//	return;
-			//}
-			cycle_colors = in;
-		}
-		bool get_cycle_colors(){
-			return cycle_colors;	
-		}
+		void set_cycle_colors(bool in);
+		bool get_cycle_colors();
 		void set_color(float r, float g, float b, float a = -1.0f);
 		Color get_color();
 	private:
-		~RenderObject();
+		//~RenderObject();
 		bool cycle_colors = false;
 		Color color = {1.0f, 1.0f, 1.0f, 1.0f};
 };
