@@ -62,6 +62,9 @@ glm::vec3 Transform::get_position(){
 const float* Transform::get_transform_mat_value_ptr() const {
 	return glm::value_ptr(transform);
 }
+const glm::mat4& Transform::get_transform_mat(){
+	return transform;	
+}
 void Transform::set_position(const glm::vec3& pos){
 	position_mat = glm::translate(glm::mat4(1.0f), pos);
 	position = pos;

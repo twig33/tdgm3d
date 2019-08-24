@@ -7,6 +7,7 @@
 #include <graphics.h>
 #include <input.h>
 #include <gamestate.h>
+#include <gameobject.h>
 
 #include <GLFW/glfw3.h>
 
@@ -75,32 +76,30 @@ int main(int argc, char* argv[])
 	copy[1]->transform.set_position(glm::vec3(1.0, 0.0,  -4.2f));
 	copy[2]->transform.set_position(glm::vec3(1.5, 0.0,  -4.25f));
 	//initial movement speed
-	glm::vec3 speed[3];
-	speed[0] = glm::vec3(0.0f, 0.0f,  0.0f);
-	speed[1] = glm::vec3(0.0f, 0.0f, 0.0f);
-	speed[2] = glm::vec3(0.0f,  0.0f, 0.0f);
+	glm::vec3 speed = glm::vec3(0.0f, 0.0f, 0.0f);
 	int frames = 0;
 	float color = 0.0f;
 	while(!Graphics->quit){
 		double time_before = glfwGetTime();
 		//main
+		int axis_x, axis_y;
+		if (Input.keys[GLFW_KEY_D] == Input.keys[GLFW_KEY_A]){
+			axis_x = 0;	
+		}
+		else {
+			axis_x = Input.keys[GLFW_KEY_D] ? 1 : -1;	
+		}
+		if (Input.keys[GLFW_KEY_W] == Input.keys[GLFW_KEY_S]){
+			axis_y = 0;	
+		}
+		else {
+			axis_y = Input.keys[GLFW_KEY_W] ? 1 : -1;	
+		}
+		speed.x = axis_x;
+		speed.y = axis_y;
+		Graphics->camera.translate(speed * -0.05f * (float)multiplier);
 		for (int i = 0; i < 3; ++i){
-			int axis_x, axis_y;
-			if (Input.keys[GLFW_KEY_D] == Input.keys[GLFW_KEY_A]){
-				axis_x = 0;	
-			}
-			else {
-				axis_x = Input.keys[GLFW_KEY_D] ? 1 : -1;	
-			}
-			if (Input.keys[GLFW_KEY_W] == Input.keys[GLFW_KEY_S]){
-				axis_y = 0;	
-			}
-			else {
-				axis_y = Input.keys[GLFW_KEY_W] ? 1 : -1;	
-			}
-			speed[i].x = axis_x;
-			speed[i].y = axis_y;
-			copy[i]->transform.translate(speed[i] * 0.05f * (float)multiplier);
+			copy[i]->transform.translate(speed * 0.05f * (float)multiplier);
 		}
 		gamestate->update();
 		Graphics->update(); 

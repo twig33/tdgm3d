@@ -49,6 +49,7 @@ class Transform {
 		void set_position(const glm::vec3& pos);
 		glm::vec3 get_position ();
 		const float* get_transform_mat_value_ptr() const;
+		const glm::mat4& get_transform_mat();
 		void translate(const glm::vec3& tr);
 		void set_rotation(const glm::vec3& rot);
 		void set_scale(const glm::vec3& scalein);

@@ -52,11 +52,12 @@ class RenderGroupManager {
 		void draw();
 		void push(RenderObject* object);
 		void remove(RenderObject* object, bool destroy = true);
-		void set_projection(glm::mat4& proj_in);
-		void set_view(glm::mat4& view);
+		void set_projection_mat_pointer(const glm::mat4* proj_in);
+		void set_view_mat_pointer(const glm::mat4* view);
 	private:
-		glm::mat4 proj = glm::mat4(1.0f);
-		glm::mat4 camera = glm::mat4(1.0f);
+		glm::mat4 identity = glm::mat4(1.0f);
+		const glm::mat4* proj = &identity;
+		const glm::mat4* camera = &identity;
 		unsigned int determine_group(RenderObject* object);
 		void check_group_members(unsigned int group);
 		void draw_group(unsigned int group);

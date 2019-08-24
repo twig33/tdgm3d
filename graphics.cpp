@@ -25,13 +25,14 @@ GraphicsManager::GraphicsManager(){
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);  
 	//create shaders
 	proj = glm::perspective(glm::radians(90.0f), (float)640/(float)480, 0.1f, 100.0f);
-	camera = glm::mat4(1.0f);
+	//camera = glm::mat4(1.0f);
 	//set screen clear color
 	glClearColor(0.9, 0.9, 1, 1);
 	Shaders = new ShaderManager();
 	RenderGroups = new RenderGroupManager();
-	RenderGroups->set_projection(proj);
-	RenderGroups->set_view(camera);
+	RenderGroups->set_projection_mat_pointer(&proj);
+	const glm::mat4& temp = camera.get_transform_mat();
+	RenderGroups->set_view_mat_pointer(&temp);
 }
 
 void GraphicsManager::finish(){

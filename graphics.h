@@ -21,9 +21,9 @@ class GraphicsManager {
 		void remove(RenderObject* object);
 		bool quit = 0;
 		GLFWwindow* window;
+		Transform camera; //everyone can move the camera
 	private:
 		glm::mat4 proj;
-		glm::mat4 camera;
 };
 
 extern GraphicsManager* Graphics;

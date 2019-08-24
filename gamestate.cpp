@@ -38,5 +38,5 @@ void Game::update(){
 }
 
 void Game::finish(){
-	
+	//delete triangle;
 }

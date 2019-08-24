@@ -234,8 +234,8 @@ void RenderGroupManager::do_shader_specific_actions(unsigned int shader_type, co
 void RenderGroupManager::draw_group(unsigned int group){
 	Shader* shader = Shaders->get_shader(groups[group]->shader_type);
 	shader->use();
-	shader->set_view(glm::value_ptr(camera));
-	shader->set_projection(glm::value_ptr(proj));
+	shader->set_view(glm::value_ptr(*camera));
+	shader->set_projection(glm::value_ptr(*proj));
 	RenderObjectNode* curr = groups[group]->tail;
 	unsigned int old_vao;
 	if (curr != NULL){
@@ -296,9 +296,9 @@ void RenderGroupManager::remove(RenderObject* object, bool destroy){
 	}
 	std::cout << "Couldn't find object node to remove\n";
 }
-void RenderGroupManager::set_projection(glm::mat4& proj_in){
+void RenderGroupManager::set_projection_mat_pointer(const glm::mat4 *proj_in){
 	proj = proj_in;	
 }
-void RenderGroupManager::set_view(glm::mat4& view){
+void RenderGroupManager::set_view_mat_pointer(const glm::mat4* view){
 	camera = view;	
 }
