@@ -81,12 +81,16 @@ void Transform::set_rotation(const glm::vec3& rot){
 	rotation_mat = glm::rotate(rotation_mat, glm::radians(rot.z), glm::vec3(0.0, 0.0, 1.0));
 	update_transform_matrix();
 }
-void Transform::set_scale(const glm::vec3& scalein){
-	scale_mat = glm::scale(glm::mat4(1.0f), scalein);
+void Transform::set_scale(const float scalein){
+	scale_mat = glm::scale(glm::mat4(1.0f), glm::vec3(scalein,scalein,scalein));
+	scale = scalein;
 	update_transform_matrix();
 }
+float Transform::get_scale(){
+	return scale;	
+}
 void Transform::update_transform_matrix(){
-	transform = scale_mat * position_mat * rotation_mat;
+	transform = position_mat * rotation_mat * scale_mat;
 }
 
 void RenderObject::set_cycle_colors(bool in){

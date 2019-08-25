@@ -1,4 +1,3 @@
-#include <random>
 #include <graphics.h>
 #include <gamestate.h>
 
@@ -9,7 +8,7 @@ void Game::init(){
 
 void Game::update(){
 	++clock;
-	if (clock > 5){
+	if (clock > 2){
 		clock = 0;	
 	}
 	if (clock == 0){
@@ -29,10 +28,10 @@ void Game::update(){
 		}
 		if (clock_even%2){
 			temp->set_cycle_colors(true);	
-			temp->transform.set_position(glm::vec3(position.x, position.y, -4.1f));
+			temp->transform->set_position(glm::vec3(position.x, position.y, -4.1f));
 		}else {
 			temp->set_color(0.0, 1.0, 0.0, 0.5);
-			temp->transform.set_position(glm::vec3(position.x, position.y, -4.0f));
+			temp->transform->set_position(glm::vec3(position.x, position.y, -4.0f));
 		}
 	}
 }

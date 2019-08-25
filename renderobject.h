@@ -52,12 +52,14 @@ class Transform {
 		const glm::mat4& get_transform_mat();
 		void translate(const glm::vec3& tr);
 		void set_rotation(const glm::vec3& rot);
-		void set_scale(const glm::vec3& scalein);
+		float get_scale();
+		void set_scale(const float scalein);
 	private:
+		float scale = 1.0f;
 		glm::vec3 position = glm::vec3(0.0, 0.0, 0.0);
+		glm::mat4 position_mat = glm::mat4(1.0f);
 		glm::mat4 transform = glm::mat4(1.0f);
 		glm::mat4 rotation_mat = glm::mat4(1.0f);
-		glm::mat4 position_mat = glm::mat4(1.0f);
 		glm::mat4 scale_mat = glm::mat4(1.0f);
 		void update_transform_matrix();
 };
@@ -65,8 +67,9 @@ class RenderObject {
 	friend class GraphicsManager;
 	friend class RenderGroupManager;
 	public:
-		RenderObject (VertexData* vertex_data) : vertex_data(vertex_data) {};
-		Transform transform;
+		RenderObject (VertexData* vertex_data, Transform* transform = NULL) : 	vertex_data(vertex_data), 
+																				transform(transform ? transform : new Transform()) {};
+		Transform* const transform;															/*check if transform is null*/
 		VertexData* const vertex_data;
 		void set_cycle_colors(bool in);
 		bool get_cycle_colors();

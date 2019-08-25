@@ -11,7 +11,7 @@ RenderGroupManager* RenderGroups;
 // -------
 //internal linked list functions
 void push_back_node(RenderObjectNode** tail, RenderObjectNode** head, RenderObjectNode* node){
-	std::cout << "Pushing back node with pos z " << node->object->transform.get_position().z << " \n";
+	std::cout << "Pushing back node with pos z " << node->object->transform->get_position().z << " \n";
 	if (*tail == NULL){
 		*tail = node;
 		return;
@@ -40,7 +40,7 @@ RenderObjectNode* find(RenderObjectNode** tail, RenderObjectNode** head, RenderO
 	return NULL;
 }
 void remove_node(RenderObjectNode** tail, RenderObjectNode** head, RenderObjectNode* node){
-	std::cout << "Removing node with " << node->object->transform.get_position().z << " z\n";
+	std::cout << "Removing node with " << node->object->transform->get_position().z << " z\n";
 	if (node == *tail){
 		*tail = NULL;
 		if (node->next != NULL){
@@ -89,7 +89,7 @@ RenderObjectNode* RenderGroup::find(RenderObject* object){
 }
 
 void RenderGroup::push_node(RenderObjectNode* node){
-	std::cout << "Pushing node with pos z " << node->object->transform.get_position().z << " to group " << group_type << "\n";
+	std::cout << "Pushing node with pos z " << node->object->transform->get_position().z << " to group " << group_type << "\n";
 	RenderObjectNode* curr = tail;
 	while (curr != NULL){
 		if (curr->object->vertex_data == node->object->vertex_data){
@@ -137,7 +137,7 @@ void RenderGroupSolidColorCycle::update(){
 void RenderGroupTransparent::insert_by_z(RenderObjectNode* node){
 	RenderObjectNode* curr = tail;
 	while(curr != NULL){
-		if ((curr->object)->transform.get_position().z >= node->object->transform.get_position().z){
+		if ((curr->object)->transform->get_position().z >= node->object->transform->get_position().z){
 			::insert_node_at(&tail, &head, node, curr);	
 			return;
 		}
@@ -148,7 +148,7 @@ void RenderGroupTransparent::insert_by_z(RenderObjectNode* node){
 
 void RenderGroupTransparent::push_node(RenderObjectNode* node){
 	node->group_data = new OldPosZData();
-	static_cast<OldPosZData*>(node->group_data)->old_pos_z = node->object->transform.get_position().z;
+	static_cast<OldPosZData*>(node->group_data)->old_pos_z = node->object->transform->get_position().z;
 	insert_by_z(node);	
 }
 
@@ -165,7 +165,7 @@ void RenderGroupTransparent::update(){
 	RenderObjectNode* temp_tail = NULL;
 	RenderObjectNode* temp_head = NULL;
 	while(curr != NULL){
-		if (static_cast<OldPosZData*>(curr->group_data)->old_pos_z != curr->object->transform.get_position().z){
+		if (static_cast<OldPosZData*>(curr->group_data)->old_pos_z != curr->object->transform->get_position().z){
 			RenderObjectNode* old_curr = curr;
 			curr = curr->next;
 			::remove_node(&tail, &head, old_curr);
@@ -182,7 +182,7 @@ void RenderGroupTransparent::update(){
 	}
 	curr = tail;
 	while (curr != NULL){
-		static_cast<OldPosZData*>(curr->group_data)->old_pos_z = curr->object->transform.get_position().z;
+		static_cast<OldPosZData*>(curr->group_data)->old_pos_z = curr->object->transform->get_position().z;
 		curr = curr->next;
 	}
 }
@@ -243,7 +243,7 @@ void RenderGroupManager::draw_group(unsigned int group){
 		glBindVertexArray(old_vao);
 	}
 	while(curr != NULL){	
-		shader->set_transform((curr->object->transform).get_transform_mat_value_ptr());
+		shader->set_transform((curr->object->transform)->get_transform_mat_value_ptr());
 		if (curr->object->vertex_data->VAO != old_vao){
 			glBindVertexArray(curr->object->vertex_data->VAO);
 		}
