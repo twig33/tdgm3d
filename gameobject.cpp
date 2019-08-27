@@ -2,6 +2,21 @@
 #include <graphics.h>
 #include <input.h>
 
+GameObjectManager* GameObjects;
+VertexData* temp_proj = NULL;
+Projectile::Projectile(glm::vec3 speed) : speed(speed){
+	if (!temp_proj){
+		temp_proj = new VertexData(GRAPHICS_SHADER_COLOR_SOLID,
+													sizeof(vertices), vertices,
+													sizeof(indices), indices);
+	}
+	render_object = new RenderObject(temp_proj, &transform);
+	Graphics->push(render_object);
+	render_object->set_color(0.5f,0.5f,1.0f,1.0f);
+}
+void Projectile::update(){
+	transform.translate(speed);	
+}
 Player::Player(){
 	render_object = new RenderObject(new VertexData(GRAPHICS_SHADER_COLOR_VERTEX,
 													sizeof(player_vertices), player_vertices,
@@ -25,4 +40,68 @@ void Player::update(){
 		axis_y = Input.keys[GLFW_KEY_W] ? 1 : -1;	
 	}
 	transform.translate(glm::vec3(axis_x * 0.05f, axis_y * 0.05f, 0.0f));
+	if (Input.keys[GLFW_KEY_R]){
+		Projectile* proj = new Projectile(glm::vec3(1.0f, 0.0f, 0.0f));
+		proj->transform.set_position(transform.get_position());
+		GameObjects->push(proj);	
+	}
+}
+GameObjectManager::GameObjectManager(){
+	objects.reserve(objects_vector_reserve);	
+}
+
+void GameObjectManager::generate_id_index(unsigned long* id, unsigned long* index){
+	std::cout << "\n" << objects.size() << "\n";
+	for (unsigned long i = 1; i < objects.size(); ++i){
+		if (objects[i-1]->id + 1 < objects[i]->id){ //if there is a free space
+			*id = objects[i-1]->id + 1;
+			*index = i;
+			return;
+		}
+	}
+	*id = objects.size() + 1;
+	*index = objects.size();
+	std::cout << "Generated id " << *id << " index " << *index << "\n";
+}
+
+unsigned long GameObjectManager::index_by_id(unsigned long id){
+	unsigned long r = objects.size() - 1, l = 0, m;
+	while (r >= l){
+		m = (l + r) / 2;
+		if (objects[m]->id > id){
+			r = m - 1;
+		}
+		else if (objects[m]->id < id){
+			l = m + 1;	
+		}
+		else {
+			return m;
+		}
+	}
+	std::cout << "Couldn't find index by id\n";
+	return objects.size();
+}
+
+void GameObjectManager::update(){
+	for (unsigned int i = 0; i < objects.size(); ++i){
+		objects[i]->update();	
+	}
+}
+void GameObjectManager::push(GameObject* object){
+	if (object->id != 0){
+		std::cout << "GameObject was already pushed\n";	
+		return;
+	}
+	if (objects.size() + 1 > objects_vector_reserve){
+		std::cout << "Over " << objects_vector_reserve << "game objects\n";
+		objects_vector_reserve *= 2;
+		objects.reserve(objects_vector_reserve);
+	}
+	unsigned long id, index;
+	generate_id_index(&id, &index);
+	object->id = id;
+	objects.insert(objects.begin() + index, object);
+}
+void GameObjectManager::remove(GameObject* object){
+	objects.erase(objects.begin() + index_by_id(object->id));
 }

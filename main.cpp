@@ -11,8 +11,8 @@
 
 #include <GLFW/glfw3.h>
 
-double framerate = 1/60;
-double multiplier = 1;
+double framerate = 1.0/60.0;
+double multiplier = 1.0;
 
 float testvertices[] = {
 	//coords			//color
@@ -52,6 +52,7 @@ unsigned int background_indices[] = {
 int main(int argc, char* argv[])
 {
 	Graphics = new GraphicsManager();
+	GameObjects = new GameObjectManager();
 	Input.init();
 	GameState* gamestate;
 	gamestate = new Game();
@@ -90,10 +91,11 @@ int main(int argc, char* argv[])
 	float color = 0.0f;
 	float scale = 1.0f;
 	Player player;
+	GameObjects->push(&player);
+	double temp_time = 0.0;
 	while(!Graphics->quit){
 		double time_before = glfwGetTime();
 		//main
-		player.update();
 		int axis_x, axis_y, axis_z;
 		if (Input.keys[GLFW_KEY_D] == Input.keys[GLFW_KEY_A]){
 			axis_x = 0;	
@@ -123,16 +125,24 @@ int main(int argc, char* argv[])
 		for (int i = 0; i < 3; ++i){
 			copy[i]->transform->translate(speed * 0.05f * (float)multiplier);
 		}
+		temp_time = glfwGetTime();
 		gamestate->update();
+		std::cout << "gamestate update took " << glfwGetTime() - temp_time << "\n";
+		temp_time = glfwGetTime();
+		GameObjects->update();
+		std::cout << "gameobjects update took " << glfwGetTime() - temp_time << "\n";
+		temp_time = glfwGetTime();
 		Graphics->update(); 
+		std::cout << "graphics update took " << glfwGetTime() - temp_time << "\n";
 		//main
 		double time_after = glfwGetTime();
-		double difference = time_before - time_after;
+		double difference = time_after - time_before;
 		if (difference < framerate){
-			while (glfwGetTime() < time_after + framerate - difference){}
+			while (glfwGetTime() < time_before + framerate){}
 			if (multiplier != 1){
 				multiplier = 1;	
 			}
+			std::cout << difference << "\n";
 		}else{
 			multiplier = difference / framerate;
 			std::cout << "Slowdown!\n";

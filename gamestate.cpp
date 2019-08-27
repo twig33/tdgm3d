@@ -7,7 +7,7 @@ void Game::init(){
 }
 
 void Game::update(){
-	++clock;
+	/*++clock;
 	if (clock > 2){
 		clock = 0;	
 	}
@@ -33,7 +33,7 @@ void Game::update(){
 			temp->set_color(0.0, 1.0, 0.0, 0.5);
 			temp->transform->set_position(glm::vec3(position.x, position.y, -4.0f));
 		}
-	}
+	}*/
 }
 
 void Game::finish(){
