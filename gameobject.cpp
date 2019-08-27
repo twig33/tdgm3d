@@ -16,6 +16,14 @@ Projectile::Projectile(glm::vec3 speed) : speed(speed){
 }
 void Projectile::update(){
 	transform.translate(speed);	
+	//transform.rotate(speed);
+	glm::vec3 pos = transform.get_position();
+	if (pos.x < -10.0f || pos.x > 10.0f){
+		speed.x *= -1;	
+	}
+	if (pos.y < -10.0f || pos.y > 10.0f){
+		speed.y *= -1;	
+	}
 }
 Player::Player(){
 	render_object = new RenderObject(new VertexData(GRAPHICS_SHADER_COLOR_VERTEX,
@@ -40,10 +48,23 @@ void Player::update(){
 		axis_y = Input.keys[GLFW_KEY_W] ? 1 : -1;	
 	}
 	transform.translate(glm::vec3(axis_x * 0.05f, axis_y * 0.05f, 0.0f));
-	if (Input.keys[GLFW_KEY_R]){
-		Projectile* proj = new Projectile(glm::vec3(1.0f, 0.0f, 0.0f));
+	if (!r_unpressed && !Input.keys[GLFW_KEY_R]){
+		r_unpressed = true;	
+	}
+	if (r_unpressed && Input.keys[GLFW_KEY_R]){
+		Projectile* proj = new Projectile(glm::vec3(0.05f, 0.05f, 0.0f));
+		proj->transform.set_position(transform.get_position());
+		GameObjects->push(proj);
+		proj = new Projectile(glm::vec3(-0.05f, -0.05f, 0.0f));
 		proj->transform.set_position(transform.get_position());
 		GameObjects->push(proj);	
+		proj = new Projectile(glm::vec3(-0.05f, 0.05f, 0.0f));
+		proj->transform.set_position(transform.get_position());
+		GameObjects->push(proj);	
+		proj = new Projectile(glm::vec3(0.05f, -0.05f, 0.0f));
+		proj->transform.set_position(transform.get_position());
+		GameObjects->push(proj);
+		r_unpressed = false;
 	}
 }
 GameObjectManager::GameObjectManager(){

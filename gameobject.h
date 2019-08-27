@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <graphics.h>
+#include <transform.h>
 #include <collision2d.h>
 
 class GameObject {
@@ -19,7 +20,7 @@ class Projectile : public GameObject {
 		Projectile(glm::vec3 speed);
 		void update();
 	private:
-		const glm::vec3 speed;
+		glm::vec3 speed;
 		float vertices[9] = {
 			-1.0f, 0.0f, 0.0f,
 			 0.0f, 1.0f, 0.0f,
@@ -34,6 +35,7 @@ class Player : public GameObject {
 		Player();
 		void update();
 	private:
+		bool r_unpressed = true;
 		float player_vertices[42] = {
 			-1.0f, 0.0f, 0.0f, 0.5f, 0.5f, 1.0f,
 			 0.0f, 1.0f, 0.0f, 0.5f, 1.0f, 1.0f,
