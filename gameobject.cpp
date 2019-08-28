@@ -4,6 +4,13 @@
 
 GameObjectManager* GameObjects;
 VertexData* temp_proj = NULL;
+GameObject::GameObject(){
+	GameObjects->push(this);	
+}
+GameObject::~GameObject(){
+	Graphics->remove(render_object);
+	delete render_object;
+}
 Projectile::Projectile(glm::vec3 speed) : speed(speed){
 	render_object = new RenderObject(Graphics->get_vertex_data(GRAPHICS_RESOURCE_SPHERE), &transform);
 	Graphics->push(render_object);
@@ -15,10 +22,16 @@ void Projectile::update(){
 	//transform.rotate(speed);
 	glm::vec3 pos = transform.get_position();
 	if (pos.x < -10.0f || pos.x > 10.0f){
-		speed.x *= -1;	
+		speed.x *= -1;
+		GameObjects->remove(this);
+		delete this;
+		return;
 	}
 	if (pos.y < -10.0f || pos.y > 10.0f){
 		speed.y *= -1;	
+		GameObjects->remove(this);
+		delete this;
+		return;
 	}
 }
 Player::Player(){
@@ -82,21 +95,25 @@ void GameObjectManager::generate_id_index(unsigned long* id, unsigned long* inde
 }
 
 unsigned long GameObjectManager::index_by_id(unsigned long id){
+	if (id == 0){
+		std::cout << "index_by_id Invalid id: 0\n";
+		return objects.size();
+	}
 	unsigned long r = objects.size() - 1, l = 0, m;
 	while (r >= l){
 		m = (l + r) / 2;
-		if (objects[m]->id > id){
+		if (objects[m]->id == id){
+			return m;	
+		}
+		else if (objects[m]->id > id){
 			r = m - 1;
 		}
 		else if (objects[m]->id < id){
 			l = m + 1;	
 		}
-		else {
-			return m;
-		}
 	}
 	std::cout << "Couldn't find index by id\n";
-	return objects.size();
+	return objects.size() - 1;
 }
 
 void GameObjectManager::update(){
@@ -120,5 +137,8 @@ void GameObjectManager::push(GameObject* object){
 	objects.insert(objects.begin() + index, object);
 }
 void GameObjectManager::remove(GameObject* object){
+	if (object->id == 0){
+		std::cout << "GameObjectManager::remove: object wasnt pushed yet\n";	
+	}
 	objects.erase(objects.begin() + index_by_id(object->id));
 }

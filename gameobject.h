@@ -12,7 +12,8 @@ class GameObject {
 		Transform transform;
 		unsigned long id = 0;
 	protected:
-		//GameObject(); //disallow instantiating GameObject class
+		GameObject(); //disallow instantiating GameObject class 
+		~GameObject();
 		RenderObject* render_object;
 };
 class Projectile : public GameObject {

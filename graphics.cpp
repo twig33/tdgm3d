@@ -59,7 +59,7 @@ void GraphicsManager::push(RenderObject* object){
 	RenderGroups->push(object);	
 }
 void GraphicsManager::remove(RenderObject* object){
-	RenderGroups->remove(object);	
+	RenderGroups->remove(object, false);	
 }
 void GraphicsManager::update(){
 	if (glfwWindowShouldClose(window)){
