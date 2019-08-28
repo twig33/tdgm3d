@@ -13,7 +13,8 @@ VertexData::VertexData(unsigned int st, std::size_t size_vertices, float vertice
 	if (size_indices % 3){
 		std::cout << "Warning: indices size not a multiply of 3\n";	
 	}
-	vertices_count = size_indices / sizeof(unsigned int);
+	vertices_count = (size_vertices / sizeof(float)) / Shaders->get_shader(shader_type)->stride;
+	elements_count = (size_indices / sizeof(unsigned int)) / 3;
 	bounds_left = vertices[0];
 	bounds_right = vertices[0];
 	bounds_up = vertices[1];

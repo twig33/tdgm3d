@@ -243,17 +243,12 @@ void RenderGroupManager::draw_group(unsigned int group){
 		glBindVertexArray(old_vao);
 	}
 	while(curr != NULL){
-		glm::vec3 temp = curr->object->transform->get_position();
-		if (temp.x > 5.0f || temp.x < -5.0f || temp.y > 5.0f || temp.y < -5.0f){ //skip objects that are too far
-			curr = curr->next;
-			continue;
-		}
 		shader->set_transform((curr->object->transform)->get_transform_mat_value_ptr());
 		if (curr->object->vertex_data->VAO != old_vao){
 			glBindVertexArray(curr->object->vertex_data->VAO);
 		}
 		do_shader_specific_actions(curr->object->vertex_data->shader_type, curr->object);
-		glDrawElements(GL_TRIANGLES, curr->object->vertex_data->vertices_count, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, curr->object->vertex_data->elements_count * 6, GL_UNSIGNED_INT, 0);
 		old_vao = curr->object->vertex_data->VAO;
 		curr = curr->next;
 	}

@@ -22,6 +22,7 @@ void Transform::set_position(const glm::vec3& pos){
 	position_mat = glm::translate(identity, pos);
 	position = pos;
 	update_transform_matrix();
+	//translate(pos - position); could be not accurate
 }
 void Transform::translate(const glm::vec3& tr){
 	position_mat = glm::translate(position_mat, tr);

@@ -21,14 +21,6 @@ class Projectile : public GameObject {
 		void update();
 	private:
 		glm::vec3 speed;
-		float vertices[9] = {
-			-1.0f, 0.0f, 0.0f,
-			 0.0f, 1.0f, 0.0f,
-			 1.0f, 0.0f, 0.0f,
-		};
-		unsigned int indices[3] = {
-			0, 1, 2,	
-		};
 };
 class Player : public GameObject {
 	public:
@@ -46,9 +38,9 @@ class Player : public GameObject {
 			 0.0f,-2.0f, 0.0f, 0.5f, 0.5f, 1.0f,
 		};
 		unsigned int player_indices[9] = {
+			3, 5, 6,
 			0, 1, 2,
 			3, 4, 5,
-			3, 5, 6
 		};
 };
 class GameObjectManager {

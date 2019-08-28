@@ -42,6 +42,7 @@ class VertexData {
 		float bounds_up;
 		float bounds_down;
 		unsigned int vertices_count;
+		unsigned int elements_count;
 		unsigned int VBO;
 		unsigned int EBO;
 		unsigned int VAO;

@@ -5,14 +5,10 @@
 GameObjectManager* GameObjects;
 VertexData* temp_proj = NULL;
 Projectile::Projectile(glm::vec3 speed) : speed(speed){
-	if (!temp_proj){
-		temp_proj = new VertexData(GRAPHICS_SHADER_COLOR_SOLID,
-													sizeof(vertices), vertices,
-													sizeof(indices), indices);
-	}
-	render_object = new RenderObject(temp_proj, &transform);
+	render_object = new RenderObject(Graphics->get_vertex_data(GRAPHICS_RESOURCE_SPHERE), &transform);
 	Graphics->push(render_object);
-	render_object->set_color(0.5f,0.5f,1.0f,1.0f);
+	//render_object->set_color(0.5f,0.5f,1.0f,1.0f);
+	render_object->set_cycle_colors(true);
 }
 void Projectile::update(){
 	transform.translate(speed);	
