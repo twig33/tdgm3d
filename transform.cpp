@@ -28,7 +28,7 @@ void Transform::translate(const glm::vec3& tr){
 	position_mat = glm::translate(position_mat, tr);
 	transform = glm::translate(transform, tr);
 	position += tr;
-	//update_transform_matrix(); can get away with not updating the transform matrix when translating 
+	update_transform_matrix(); //can get away with not updating the transform matrix when translating 
 }
 void Transform::set_rotation(const glm::vec3& rot){
 	rotation_mat = glm::rotate(identity, glm::radians(rot.x), glm::vec3(1.0, 0.0, 0.0));

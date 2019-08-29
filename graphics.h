@@ -15,6 +15,8 @@
 enum { //resources
 	GRAPHICS_RESOURCE_SPHERE,
 	GRAPHICS_RESOURCE_CUBE,
+	GRAPHICS_RESOURCE_STAR_DESTROYER,
+	GRAPHICS_RESOURCE_BOMB,
 	GRAPHICS_RESOURCE_SIZE
 };
 
@@ -30,7 +32,14 @@ class GraphicsManager {
 		GLFWwindow* window;
 		Transform camera; //everyone can move the camera
 	private:
+		const char* resource_paths [GRAPHICS_RESOURCE_SIZE] = {
+			resource_paths[GRAPHICS_RESOURCE_SPHERE] = "sphere.obj",
+			resource_paths[GRAPHICS_RESOURCE_CUBE] = "cube.obj",
+			resource_paths[GRAPHICS_RESOURCE_STAR_DESTROYER] = "star_destroyer.obj",
+			resource_paths[GRAPHICS_RESOURCE_BOMB] = "bomb.obj",
+		};
 		VertexData* resources_vertex_data[GRAPHICS_RESOURCE_SIZE];
+		void load_resources();
 		void process_obj(const char* path, std::size_t* size_vertices, float** vertices, std::size_t* size_indices, unsigned int** indices);  
 		glm::mat4 proj;
 };

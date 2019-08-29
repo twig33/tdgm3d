@@ -36,18 +36,7 @@ GraphicsManager::GraphicsManager(){
 	const glm::mat4& temp = camera.get_transform_mat();
 	RenderGroups->set_view_mat_pointer(&temp);
 	//resources init
-	float* vertices_temp = NULL;
-	unsigned int* indices_temp = NULL;
-	std::size_t size_vertices_temp = 0;
-	std::size_t size_indices_temp = 0;
-	process_obj("sphere.obj", &size_vertices_temp, &vertices_temp,
-								&size_indices_temp, &indices_temp);
-	resources_vertex_data[GRAPHICS_RESOURCE_SPHERE] = new VertexData  (GRAPHICS_SHADER_COLOR_SOLID, size_vertices_temp, vertices_temp,
-																	 								size_indices_temp, indices_temp);
-	process_obj("cube.obj", &size_vertices_temp, &vertices_temp,
-								&size_indices_temp, &indices_temp);
-	resources_vertex_data[GRAPHICS_RESOURCE_CUBE] = new VertexData  (GRAPHICS_SHADER_COLOR_SOLID, size_vertices_temp, vertices_temp,
-																	 								size_indices_temp, indices_temp);
+	load_resources();
 	//finish();
 }
 
@@ -69,6 +58,18 @@ void GraphicsManager::update(){
 	RenderGroups->draw();
 	glfwSwapBuffers(window);
 	glfwPollEvents();
+}
+void GraphicsManager::load_resources(){
+	float* vertices_temp = NULL;
+	unsigned int* indices_temp = NULL;
+	std::size_t size_vertices_temp = 0;
+	std::size_t size_indices_temp = 0;
+	for (int i = 0; i < GRAPHICS_RESOURCE_SIZE; ++i){
+		process_obj(resource_paths[i], &size_vertices_temp, &vertices_temp,
+									&size_indices_temp, &indices_temp);
+		resources_vertex_data[i] = new VertexData  (GRAPHICS_SHADER_COLOR_SOLID, size_vertices_temp, vertices_temp,
+													size_indices_temp, indices_temp);
+	}
 }
 VertexData* GraphicsManager::get_vertex_data(unsigned int id){
 	if (id < 0 || id > GRAPHICS_RESOURCE_SIZE){
@@ -92,8 +93,18 @@ void GraphicsManager::process_obj(const char* path,
 		if (header == "v"){
 			*size_vertices += 3 * sizeof(float);
 		}
-		else if (header == "f"){
-			*size_indices += 6 * sizeof(unsigned int);
+		else if (header == "f"){ //can be a quad or a triangle (1/2/3 1/2/3 1/2/3 1/2/3 or 1/2/3 1/2/3 1/2/3)
+			std::string fourth_indice = "";
+			for (int i = 0; i < 4; ++i){
+				fourth_indice = "";
+				iss >> fourth_indice; //push 4 times
+			}
+			if (fourth_indice != ""){
+				*size_indices += 6 * sizeof(unsigned int); //make 2 triangles from 1 quad so need 6 unsigned ints
+			}
+			else {
+				*size_indices += 3 * sizeof(unsigned int);	//1 triangle so 3 unsigned ints
+			}
 		}
 	}
 	line = "";
@@ -115,50 +126,57 @@ void GraphicsManager::process_obj(const char* path,
 			std::cout << (*vertices)[vertices_i] << " " << (*vertices)[vertices_i + 1] << " " << (*vertices)[vertices_i + 2] << "\n";
 			vertices_i += 3;
 		}
-		else if (header == "f"){ // 0 1 2 0 2 3
-			std::string index;
-			std::istringstream iss_index;
+		else if (header == "f"){
+			std::string indice[4] = {""};
+			iss >> indice[0] >> indice[1] >> indice[2] >> indice[3];
+			std::istringstream iss_indice;
 			std::string token;
-			for (int i = 0; i < 4; ++i){
-				iss >> index;
-				iss_index.str(index);
-				std::getline(iss_index, token, '/'); //only take the first indice in a x/x/x formation
-				std::stringstream token_to_int;
-				token_to_int << token;
-				unsigned int temp;
-				token_to_int >> temp;
-				--temp;
-				//std::cout << temp << "\n";
-				switch(i){
-					case 0:
-						(*indices)[indices_i] = temp;
-						(*indices)[indices_i + 3] = temp;
-						break;
-					case 1:
-						(*indices)[indices_i + 1] = temp;
-						break;
-					case 2:
-						(*indices)[indices_i + 2] = temp;
-						(*indices)[indices_i + 4] = temp;
-						break;
-					case 3:
-						(*indices)[indices_i + 5] = temp;
-						break;
+			if (indice[3] != ""){ //if it's a quad
+				for (int i = 0; i < 4; ++i){
+					iss_indice.str(indice[i]);
+					std::getline(iss_indice, token, '/'); //only take the first indice in a x/x/x formation
+					std::stringstream token_to_int;
+					token_to_int << token;
+					unsigned int temp;
+					token_to_int >> temp;
+					--temp;
+					switch(i){ // 0 1 2 0 2 3
+						case 0:
+							(*indices)[indices_i] = temp;
+							(*indices)[indices_i + 3] = temp;
+							break;
+						case 1:
+							(*indices)[indices_i + 1] = temp;
+							break;
+						case 2:
+							(*indices)[indices_i + 2] = temp;
+							(*indices)[indices_i + 4] = temp;
+							break;
+						case 3:
+							(*indices)[indices_i + 5] = temp;
+							break;
+					}
+					token_to_int.clear();
+					token_to_int.flush();
+					token_to_int.str("");
+					iss_indice.clear();
+					iss_indice.str("");
 				}
-				token_to_int.clear();
-				token_to_int.flush();
-				token_to_int.str("");
-				iss_index.clear();
-				iss_index.str("");
-				index = "";
+				indices_i += 6;
 			}
-			std::cout << (*indices)[indices_i] << " ";
-			std::cout << (*indices)[indices_i+1] << " ";
-			std::cout << (*indices)[indices_i+2] << " \n";
-			std::cout << (*indices)[indices_i+3] << " ";
-			std::cout << (*indices)[indices_i+4] << " ";
-			std::cout << (*indices)[indices_i+5] << " \n";
-			indices_i += 6;
+			else {// if it's a triangle
+				for (int i = 0; i < 3; ++i){
+					iss_indice.str(indice[i]);
+					std::getline(iss_indice, token, '/'); //only take the first indice in a x/x/x formation
+					std::stringstream token_to_int;
+					token_to_int << token;
+					unsigned int temp;
+					token_to_int >> temp;
+					--temp;
+					(*indices)[indices_i + i] = temp; 
+				}
+				indices_i += 3;
+			}
 		}
 		iss.clear();
 		iss.flush();

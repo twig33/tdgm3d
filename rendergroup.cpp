@@ -248,7 +248,7 @@ void RenderGroupManager::draw_group(unsigned int group){
 			glBindVertexArray(curr->object->vertex_data->VAO);
 		}
 		do_shader_specific_actions(curr->object->vertex_data->shader_type, curr->object);
-		glDrawElements(GL_TRIANGLES, curr->object->vertex_data->elements_count * 6, GL_UNSIGNED_INT, 0);
+		glDrawElements(GL_TRIANGLES, curr->object->vertex_data->elements_count * 3, GL_UNSIGNED_INT, 0);
 		old_vao = curr->object->vertex_data->VAO;
 		curr = curr->next;
 	}

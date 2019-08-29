@@ -12,35 +12,36 @@ GameObject::~GameObject(){
 	delete render_object;
 }
 Projectile::Projectile(glm::vec3 speed) : speed(speed){
-	render_object = new RenderObject(Graphics->get_vertex_data(GRAPHICS_RESOURCE_SPHERE), &transform);
+	render_object = new RenderObject(Graphics->get_vertex_data(GRAPHICS_RESOURCE_BOMB), &transform);
+	transform.set_rotation(glm::vec3(-90.0f, 0.0f, 0.0f));
 	Graphics->push(render_object);
-	//render_object->set_color(0.5f,0.5f,1.0f,1.0f);
-	render_object->set_cycle_colors(true);
+	render_object->set_color(1.0f,0.2f,0.2f,1.0f);
 }
 void Projectile::update(){
 	transform.translate(speed);	
 	//transform.rotate(speed);
 	glm::vec3 pos = transform.get_position();
 	if (pos.x < -10.0f || pos.x > 10.0f){
-		speed.x *= -1;
+		//speed.x = 0;
+		//speed.y = 0;
 		GameObjects->remove(this);
-		delete this;
 		return;
+		//delete this;
+		//return;
 	}
 	if (pos.y < -10.0f || pos.y > 10.0f){
-		speed.y *= -1;	
+		//speed.y = 0;	
 		GameObjects->remove(this);
-		delete this;
 		return;
+		//delete this;
+		//return;
 	}
 }
 Player::Player(){
-	render_object = new RenderObject(new VertexData(GRAPHICS_SHADER_COLOR_VERTEX,
-													sizeof(player_vertices), player_vertices,
-													sizeof(player_indices), player_indices),
-									&transform);
+	render_object = new RenderObject(Graphics->get_vertex_data(GRAPHICS_RESOURCE_STAR_DESTROYER), &transform);
 	Graphics->push(render_object);
-	render_object->set_color(0.5f,0.5f,1.0f,1.0f);						
+	render_object->set_color(0.5f,0.5f,1.0f,0.5f);
+	transform.set_rotation(glm::vec3(-90.0f, 0.0f, 0.0f));
 }
 void Player::update(){
 	int axis_x, axis_y;
@@ -117,9 +118,11 @@ unsigned long GameObjectManager::index_by_id(unsigned long id){
 }
 
 void GameObjectManager::update(){
-	for (unsigned int i = 0; i < objects.size(); ++i){
+	unsigned int i = 0;
+	for (; i < objects.size(); ++i){
 		objects[i]->update();	
 	}
+	std::cout << i << " objects updated\n";
 }
 void GameObjectManager::push(GameObject* object){
 	if (object->id != 0){
